@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1424">
+<title>Christmas Lights</title>
+<style>
+  :root {
+    --bg: #0d1424;
+    --card: #17213a;
+    --card-2: #1f2b4a;
+    --text: #f4efe6;
+    --muted: #9aa6c2;
+    --gold: #f2b84b;
+    --red: #d9434e;
+    --green: #3fae6a;
+    --ok: #3fae6a;
+    --warn: #e0a030;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body {
+    background: radial-gradient(circle at 50% -20%, #22305a 0%, var(--bg) 60%);
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    padding: 16px 16px 32px;
+  }
+  main { max-width: 480px; margin: 0 auto; }
+  header { display: flex; align-items: center; justify-content: space-between; margin: 4px 0 16px; }
+  h1 { font-size: 1.5rem; margin: 0; letter-spacing: .01em; }
+  h1 span { color: var(--gold); }
+  h2 { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em;
+       color: var(--muted); margin: 24px 0 10px; }
+
+  .pill { font-size: .8rem; padding: 6px 12px; border-radius: 999px; background: var(--card);
+          color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+  .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .pill.on { color: var(--text); }
+  .pill.on::before { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .pill.busy::before { background: var(--warn); }
+
+  button { font: inherit; color: inherit; border: 0; cursor: pointer; }
+  button:disabled { opacity: .35; cursor: default; }
+
+  .connect { width: 100%; padding: 18px; border-radius: var(--radius); font-size: 1.1rem; font-weight: 700;
+             background: linear-gradient(135deg, var(--red), #b52a3a); color: #fff;
+             box-shadow: 0 6px 20px rgba(217,67,78,.35); }
+  .connect.connected { background: var(--card); box-shadow: none; color: var(--muted); font-weight: 600; font-size: .95rem; padding: 12px; }
+
+  .status { background: var(--card); border-radius: var(--radius); padding: 16px; margin-top: 16px; }
+  .status .level { font-size: 1.25rem; font-weight: 700; }
+  .status .effect { color: var(--muted); margin-top: 4px; }
+  .status .meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .tag { font-size: .8rem; background: var(--card-2); padding: 4px 10px; border-radius: 999px; color: var(--muted); }
+
+  .levels { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .lvl { aspect-ratio: 1 / 1.25; border-radius: 14px; display: flex; flex-direction: column;
+         align-items: center; justify-content: center; gap: 4px; background: var(--card);
+         border: 2px solid transparent; transition: transform .1s, border-color .2s; }
+  .lvl:active:not(:disabled) { transform: scale(.95); }
+  .lvl b { font-size: 1.5rem; }
+  .lvl small { font-size: .65rem; color: var(--muted); }
+  .lvl .dot { width: 22px; height: 6px; border-radius: 3px; }
+  .lvl.active { border-color: var(--gold); background: var(--card-2); }
+  .lvl.active small { color: var(--text); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ctl { background: var(--card); border-radius: 14px; padding: 16px 12px; font-weight: 600;
+         display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; }
+  .ctl:active:not(:disabled) { background: var(--card-2); }
+  .ctl.toggle.on { background: var(--card-2); box-shadow: inset 0 0 0 2px var(--gold); }
+  .ctl .big { font-size: 1.4rem; line-height: 1; }
+
+  .note { margin-top: 16px; padding: 14px; border-radius: var(--radius); background: #3a2a14;
+          color: #f6dcae; font-size: .9rem; line-height: 1.4; display: none; }
+  .note.show { display: block; }
+  .timer { background: var(--card); border-radius: var(--radius); padding: 14px; }
+  .times { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .times label { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; color: var(--muted); }
+  .times input { font: inherit; font-size: 1.3rem; font-weight: 600; color: var(--text); background: var(--card-2);
+                 border: 2px solid transparent; border-radius: 12px; padding: 10px; width: 100%; color-scheme: dark; }
+  .times input:focus { outline: none; border-color: var(--gold); }
+  .timer .ctl { background: var(--card-2); }
+  .timer .ctl.dirty { box-shadow: inset 0 0 0 2px var(--gold); }
+  .tnote { margin-top: 10px; font-size: .85rem; color: var(--muted); line-height: 1.4; }
+  .tnote.warn { color: #f6dcae; }
+  h2 .hint { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  footer { text-align: center; color: var(--muted); font-size: .75rem; margin-top: 28px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Christmas <span>Lights</span></h1>
+    <span id="pill" class="pill">Not connected</span>
+  </header>
+
+  <button id="connect" class="connect">Connect to lights</button>
+
+  <div id="note" class="note"></div>
+
+  <section class="status" aria-live="polite">
+    <div class="level" id="stLevel">—</div>
+    <div class="effect" id="stEffect">Tap Connect to begin</div>
+    <div class="meta">
+      <span class="tag" id="stAuto">Auto —</span>
+      <span class="tag" id="stBright">Brightness —</span>
+      <span class="tag" id="stOn">Lights —</span>
+    </div>
+  </section>
+
+  <h2>Energy level</h2>
+  <div class="levels" id="levels"></div>
+
+  <h2>Effect</h2>
+  <div class="grid2">
+    <button class="ctl" data-cmd="n" disabled><span class="big">⏭</span> Next effect</button>
+    <button class="ctl toggle" id="autoBtn" data-cmd="a" disabled><span class="big">🔁</span> Auto</button>
+  </div>
+
+  <h2>Brightness</h2>
+  <div class="grid2">
+    <button class="ctl" data-cmd="-" disabled><span class="big">−</span> Dimmer</button>
+    <button class="ctl" data-cmd="+" disabled><span class="big">+</span> Brighter</button>
+  </div>
+
+  <h2>Power</h2>
+  <div class="grid2">
+    <button class="ctl toggle" id="onBtn" data-cmd="o" disabled style="grid-column: span 2;"><span class="big">⏻</span> Lights on / off</button>
+  </div>
+
+  <h2>Daily timer <span class="hint">(GMT)</span></h2>
+  <div class="timer">
+    <div class="times">
+      <label>Lights on at<input type="time" id="onTime" value="16:00" disabled></label>
+      <label>Lights off at<input type="time" id="offTime" value="23:00" disabled></label>
+    </div>
+    <div class="grid2">
+      <button class="ctl" id="saveTimes" disabled>Save times</button>
+      <button class="ctl toggle" id="timerBtn" data-cmd="t" disabled><span class="big">⏱</span> Timer</button>
+    </div>
+    <div class="tnote" id="timerNote">Connect to see the timer.</div>
+  </div>
+
+  <footer>Keep this page open while you use it. Bluetooth range is about 10 m.</footer>
+</main>
+
+<script>
+// Must match ble_control.cpp on the Pico
+const DEVICE_NAME  = "Christmas Lights";
+const SERVICE_UUID = "13a56b22-77de-41c9-abfe-b04a3232e036";
+const COMMAND_UUID = "9b9c8ef6-6d34-43e0-a057-83a3534036bf";
+const STATUS_UUID  = "b1006b19-b5bd-413d-ad24-2c93dbbc0697";
+const TIMER_UUID   = "5d3e9a71-0c84-4b6f-9e2a-7f1c6b8d4e20";
+
+// Must match levels.h on the Pico (same order)
+const LEVELS = [
+  { name: "Calm",    colour: "#ffb870", effects: ["Steady warm white", "Breathing warm white"] },
+  { name: "Gentle",  colour: "#7fd39a", effects: ["Slow red/green/gold fade", "Gentle twinkle"] },
+  { name: "Festive", colour: "#e84d5a", effects: ["Candy cane", "Colour wipe", "Traditional multicolour"] },
+  { name: "Lively",  colour: "linear-gradient(90deg,#f44,#fb3,#4c4,#39f)", effects: ["Rainbow cycle", "Fast sparkle", "Red/green flash"] },
+  { name: "Party",   colour: "linear-gradient(90deg,#f3c,#93f,#3cf)", effects: ["Rainbow chase", "Confetti", "Fire"] },
+];
+
+const $ = id => document.getElementById(id);
+let device = null, commandChar = null, statusChar = null, timerChar = null;
+let timesEdited = false;
+let writeChain = Promise.resolve();
+let manualDisconnect = false;
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
+// Build the level buttons from the table above
+LEVELS.forEach((lv, i) => {
+  const b = document.createElement("button");
+  b.className = "lvl";
+  b.dataset.cmd = String(i + 1);
+  b.disabled = true;
+  b.innerHTML = `<b>${i + 1}</b><span class="dot" style="background:${lv.colour}"></span><small>${lv.name}</small>`;
+  $("levels").appendChild(b);
+});
+
+function controls() { return document.querySelectorAll("[data-cmd]"); }
+
+function setConnected(on) {
+  controls().forEach(b => b.disabled = !on);
+  ["onTime", "offTime", "saveTimes"].forEach(id => $(id).disabled = !on);
+  const btn = $("connect");
+  btn.textContent = on ? "Connected · tap to disconnect" : "Connect to lights";
+  btn.classList.toggle("connected", on);
+  $("pill").textContent = on ? "Connected" : "Not connected";
+  $("pill").className = "pill" + (on ? " on" : "");
+  if (!on) {
+    $("stLevel").textContent = "—";
+    $("stEffect").textContent = "Tap Connect to begin";
+    $("timerNote").textContent = "Connect to see the timer.";
+    $("timerNote").classList.remove("warn");
+  }
+}
+
+function showNote(msg) {
+  $("note").textContent = msg;
+  $("note").classList.toggle("show", !!msg);
+}
+
+// Status from the Pico looks like "L3 E2 A1 B100 O1"
+function showStatus(text) {
+  const m = /L(\d+)\s+E(\d+)\s+A(\d)\s+B(\d+)\s+O(\d)/.exec(text);
+  if (!m) return;
+  const level = +m[1], effect = +m[2], auto = m[3] === "1", bright = +m[4], on = m[5] === "1";
+  const lv = LEVELS[level - 1];
+  $("stLevel").textContent = `Level ${level}${lv ? " · " + lv.name : ""}`;
+  $("stEffect").textContent = lv && lv.effects[effect - 1] ? lv.effects[effect - 1] : `Effect ${effect}`;
+  $("stAuto").textContent = "Auto " + (auto ? "on" : "off");
+  $("stBright").textContent = `Brightness ${bright}%`;
+  $("stOn").textContent = "Lights " + (on ? "on" : "off");
+  document.querySelectorAll(".lvl").forEach(b => b.classList.toggle("active", +b.dataset.cmd === level));
+  $("autoBtn").classList.toggle("on", auto);
+  $("onBtn").classList.toggle("on", on);
+}
+
+// Timer status from the Pico looks like "T1 C1 1600 2300"
+function showTimer(text) {
+  const m = /T(\d)\s+C(\d)\s+(\d\d)(\d\d)\s+(\d\d)(\d\d)/.exec(text);
+  if (!m) return;
+  const enabled = m[1] === "1", clockSet = m[2] === "1";
+  const on = `${m[3]}:${m[4]}`, off = `${m[5]}:${m[6]}`;
+  if (!timesEdited) { $("onTime").value = on; $("offTime").value = off; }
+  $("timerBtn").classList.toggle("on", enabled);
+  const note = $("timerNote");
+  if (!enabled) {
+    note.textContent = "Timer is off. The lights stay as you set them.";
+    note.classList.remove("warn");
+  } else if (!clockSet) {
+    note.textContent = "Timer is on, but the lights don't know the time yet. Reconnect to set it.";
+    note.classList.add("warn");
+  } else {
+    note.textContent = `Timer is on: lights on at ${on}, off at ${off} each day. Switching on or off by hand lasts until the next change.`;
+    note.classList.remove("warn");
+  }
+}
+
+function send(cmd) {
+  if (!commandChar) return;
+  const data = encoder.encode(cmd);
+  // One Bluetooth write at a time, otherwise Chrome reports "operation already in progress"
+  writeChain = writeChain.then(() =>
+    commandChar.writeValueWithoutResponse
+      ? commandChar.writeValueWithoutResponse(data)
+      : commandChar.writeValue(data)
+  ).catch(err => showNote("Couldn't send that command: " + err.message));
+}
+
+async function connect() {
+  showNote("");
+  if (!navigator.bluetooth) {
+    showNote("This browser can't use Bluetooth. Open this page in Chrome on Android, and make sure the address starts with https://.");
+    return;
+  }
+  try {
+    $("pill").textContent = "Connecting…";
+    $("pill").className = "pill busy";
+    device = await navigator.bluetooth.requestDevice({
+      filters: [{ name: DEVICE_NAME }],
+      optionalServices: [SERVICE_UUID],
+    });
+    device.addEventListener("gattserverdisconnected", onDisconnected);
+    const server = await device.gatt.connect();
+    const service = await server.getPrimaryService(SERVICE_UUID);
+    commandChar = await service.getCharacteristic(COMMAND_UUID);
+    statusChar = await service.getCharacteristic(STATUS_UUID);
+
+    statusChar.addEventListener("characteristicvaluechanged", e => showStatus(decoder.decode(e.target.value)));
+    await statusChar.startNotifications();
+    showStatus(decoder.decode(await statusChar.readValue()));
+
+    try {   // timer was added in step 5; older Pico code won't have it
+      timerChar = await service.getCharacteristic(TIMER_UUID);
+      timerChar.addEventListener("characteristicvaluechanged", e => showTimer(decoder.decode(e.target.value)));
+      await timerChar.startNotifications();
+      showTimer(decoder.decode(await timerChar.readValue()));
+    } catch (e) { timerChar = null; }
+
+    setConnected(true);
+    // Give the lights the current time (seconds since 1970, GMT)
+    send("T" + Math.floor(Date.now() / 1000) + ";");
+  } catch (err) {
+    setConnected(false);
+    if (err.name !== "NotFoundError") {   // NotFoundError = user cancelled the picker
+      showNote("Couldn't connect: " + err.message + ". Check the lights are powered and Bluetooth is on, then try again.");
+    }
+  }
+}
+
+function onDisconnected() {
+  commandChar = statusChar = timerChar = null;
+  setConnected(false);
+  showNote(manualDisconnect ? "" : "Lost connection to the lights. Tap Connect to reconnect.");
+  manualDisconnect = false;
+}
+
+$("connect").addEventListener("click", () => {
+  if (device && device.gatt.connected) { manualDisconnect = true; device.gatt.disconnect(); }
+  else connect();
+});
+
+controls().forEach(b => b.addEventListener("click", () => send(b.dataset.cmd)));
+
+["onTime", "offTime"].forEach(id => $(id).addEventListener("input", () => {
+  timesEdited = true;
+  $("saveTimes").classList.add("dirty");
+}));
+
+$("saveTimes").addEventListener("click", () => {
+  const on = $("onTime").value, off = $("offTime").value;   // "16:00"
+  if (!/^\d\d:\d\d$/.test(on) || !/^\d\d:\d\d$/.test(off)) {
+    showNote("Please enter both times.");
+    return;
+  }
+  send("S" + on.replace(":", "") + off.replace(":", "") + ";");
+  timesEdited = false;
+  $("saveTimes").classList.remove("dirty");
+});
+// Level buttons are created above, so attach after building
+setConnected(false);
+</script>
+</body>
+</html>
