@@ -91,6 +91,22 @@
   .timer .ctl.dirty { box-shadow: inset 0 0 0 2px var(--gold); }
   .tnote { margin-top: 10px; font-size: .85rem; color: var(--muted); line-height: 1.4; }
   .tnote.warn { color: #f6dcae; }
+  .quiz { background: var(--card); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .quiz .ctl { background: var(--card-2); }
+  #quizRun { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .quiz-head b { font-size: 1.1rem; }
+  .quiz-head span { color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
+  .playbig { width: 100%; min-height: 64px; font-size: 1.15rem; background: linear-gradient(135deg, #2f7d4f, #23633d) !important; color: #fff; }
+  .answer { background: var(--bg); border: 2px dashed var(--gold); border-radius: 14px; padding: 14px; text-align: center; }
+  .answer small { display: block; color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; }
+  .answer b { display: block; font-size: 1.35rem; color: var(--gold); margin-top: 4px; }
+  .linkbtn { background: none; color: var(--muted); text-decoration: underline; padding: 6px; font-size: .9rem; align-self: center; }
+  .check { display: flex; gap: 8px; align-items: center; font-size: .9rem; color: var(--muted); }
+  .check input { width: 20px; height: 20px; accent-color: var(--gold); }
+  .paused { opacity: .35; pointer-events: none; }
+  .qhint { font-size: .85rem; color: var(--muted); line-height: 1.4; margin: 0; }
+  [hidden] { display: none !important; }
   h2 .hint { text-transform: none; letter-spacing: 0; font-weight: 400; }
   footer { text-align: center; color: var(--muted); font-size: .75rem; margin-top: 28px; }
 </style>
@@ -116,6 +132,30 @@
     </div>
   </section>
 
+  <h2>Music quiz</h2>
+  <div class="quiz" id="quizBox">
+    <div id="quizStart">
+      <div class="grid2">
+        <button class="ctl qbtn" id="startCarol" disabled><span class="big">🎄</span> Carol quiz</button>
+        <button class="ctl qbtn" id="startNursery" disabled><span class="big">🧸</span> Nursery rhymes</button>
+      </div>
+    </div>
+    <div id="quizRun" hidden>
+      <div class="quiz-head"><b id="quizName">Carol quiz</b><span id="quizCount">Tune 1 of 12</span></div>
+      <button class="ctl qbtn playbig" id="quizPlay" disabled>▶ Play tune</button>
+      <div class="grid2">
+        <button class="ctl qbtn" id="quizReveal" disabled><span class="big">👁</span> Reveal</button>
+        <button class="ctl qbtn" id="quizNext" disabled><span class="big">⏭</span> Next tune</button>
+      </div>
+      <div class="answer" id="quizAnswer" hidden><small>Answer</small><b id="quizTitle"></b></div>
+      <label class="check" for="phoneSound"><input type="checkbox" id="phoneSound" checked> Play the tune on this phone at Reveal</label>
+      <button class="linkbtn qbtn" id="quizEnd" disabled>End quiz</button>
+    </div>
+    <p class="qhint" id="quizHint">Tunes come in a random order each game. Only you see the answer, on this phone.</p>
+    <button class="linkbtn qbtn" id="sideCheck" disabled>Show fireplace sides (red, green, blue)</button>
+  </div>
+
+  <div id="normalControls">
   <h2>Energy level</h2>
   <div class="levels" id="levels"></div>
   <button class="ctl toggle shuffle" id="shuffleBtn" data-cmd="s" disabled><span class="big">🔀</span> Shuffle all effects</button>
@@ -125,6 +165,7 @@
     <button class="ctl" data-cmd="n" disabled><span class="big">⏭</span> Next effect</button>
     <button class="ctl toggle" id="autoBtn" data-cmd="a" disabled><span class="big">🔁</span> Auto</button>
   </div>
+  </div>
 
   <h2>Brightness</h2>
   <div class="grid2">
@@ -133,7 +174,7 @@
   </div>
 
   <h2>Power</h2>
-  <div class="grid2">
+  <div class="grid2" id="powerControls">
     <button class="ctl toggle" id="onBtn" data-cmd="o" disabled style="grid-column: span 2;"><span class="big">⏻</span> Lights on / off</button>
   </div>
 
@@ -161,6 +202,10 @@ const SERVICE_UUID = "13a56b22-77de-41c9-abfe-b04a3232e036";
 const COMMAND_UUID = "9b9c8ef6-6d34-43e0-a057-83a3534036bf";
 const STATUS_UUID  = "b1006b19-b5bd-413d-ad24-2c93dbbc0697";
 const TIMER_UUID   = "5d3e9a71-0c84-4b6f-9e2a-7f1c6b8d4e20";
+const QUIZ_UUID    = "3344eadc-34d4-4bd6-89ae-b9407980f1ae";
+
+// Quiz tunes - generated from tunes.py, same order as quiz_tunes.h on the Pico
+/*QUIZ_TUNES_START*/const QUIZ_TUNES = [{"title":"Silent Night","set":"carol","bpm":80,"confidence":"sure","notes":[67,69,67,64,67,69,67,64,74,74,71,72,72,67,69,69,72,71,69,67,69,67,64,69,69,72,71,69,67,69,67,64,74,74,77,74,71,72,76,72,67,64,67,65,62,60],"durs":[3,1,2,6,3,1,2,6,4,2,6,4,2,6,4,2,3,1,2,3,1,2,6,4,2,3,1,2,3,1,2,6,4,2,3,1,2,6,6,3,1,2,3,1,2,12]},{"title":"O Holy Night","set":"carol","bpm":72,"confidence":"check","notes":[64,64,64,67,0,67,69,69,65,69,72,67,0,67,64,62,60,64,65,67,65,62,60],"durs":[6,4,2,12,4,2,4,2,4,2,12,12,4,2,4,2,12,4,2,6,4,2,18]},{"title":"Joy to the World","set":"carol","bpm":100,"confidence":"sure","notes":[74,73,71,69,67,66,64,62,69,71,71,73,73,74,74,74,73,71,69,69,67,66,66,66,66,66,67,69,67,66,64,64,64,66,67,66,64,62,74,71,69,67,66,67,66,64,62],"durs":[4,3,1,6,2,4,4,6,2,6,2,6,2,6,2,2,2,2,2,3,1,2,2,2,2,3,1,6,1,1,2,2,3,1,6,1,1,2,4,2,3,1,2,2,4,4,8]},{"title":"Hark! The Herald Angels Sing","set":"carol","bpm":108,"confidence":"sure","notes":[62,67,67,66,67,71,71,69,74,74,74,72,71,69,71,62,67,67,66,67,71,71,69,74,69,69,66,66,64,62,74,74,74,67,72,71,71,69,74,74,74,67,72,71,71,69,76,76,76,74,72,71,72,69,71,72,74,67,67,69,71],"durs":[4,4,6,2,4,4,4,4,4,4,6,2,4,4,8,4,4,6,2,4,4,4,4,4,4,6,2,4,4,8,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,8,4,2,2,6,2,4,4,8]},{"title":"O Come, All Ye Faithful","set":"carol","bpm":96,"confidence":"sure","notes":[67,67,62,67,69,62,71,69,71,72,71,69,67,67,66,64,66,67,69,71,66,64,62,62,67,67,66,67,69,67,62,71,71,69,71,72,71,69,71,72,71,69,67,66,67,72,71,69,67,67],"durs":[4,8,4,4,8,8,4,4,4,4,8,4,4,8,4,4,4,4,4,4,8,6,2,12,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,8,6,2,12]},{"title":"Away in a Manger","set":"carol","bpm":100,"confidence":"sure","notes":[62,67,67,69,71,67,67,71,72,74,74,76,72,69,71,72,72,74,71,71,67,71,69,64,67,66,62,67,67,69,71,67,67,71,72,74,74,76,72,69,71,72,72,74,71,71,67,71,69,64,66,67],"durs":[4,4,4,2,2,4,4,2,2,4,4,4,8,2,2,4,4,4,4,4,2,2,4,4,4,8,4,4,4,2,2,4,4,2,2,4,4,4,8,2,2,4,4,4,4,4,2,2,4,4,4,8]},{"title":"The First Noel","set":"carol","bpm":120,"confidence":"sure","notes":[66,64,62,64,66,67,69,71,73,74,73,71,69,71,73,74,73,71,69,71,73,74,69,67,66,66,64,62,64,66,67,69,74,73,71,71,69,74,73,71,69,71,73,74,69,67,66],"durs":[2,2,6,2,2,2,8,2,2,4,4,4,8,2,2,4,4,4,4,4,4,4,4,4,8,2,2,6,2,2,2,8,2,2,8,4,12,4,4,4,4,4,4,4,4,4,8]},{"title":"God Rest You Merry, Gentlemen","set":"carol","bpm":120,"confidence":"sure","notes":[64,64,71,71,69,67,66,64,62,64,66,67,69,71,64,64,71,71,69,67,66,64,62,64,66,67,69,71,71,72,69,71,72,74,76,71,69,67,64,66,67,69,67,69,71,72,74,76,71,69,67,66,64],"durs":[4,4,4,4,4,4,4,4,4,4,4,4,4,12,4,4,4,4,4,4,4,4,4,4,4,4,4,12,4,4,4,4,4,4,4,4,4,4,4,4,4,8,4,4,4,4,4,4,4,4,4,4,12]},{"title":"Angels We Have Heard on High","set":"carol","bpm":110,"confidence":"sure","notes":[69,69,69,72,72,70,69,69,67,69,72,69,67,65,69,69,69,72,72,70,69,69,67,69,72,69,67,65,72,74,72,70,69,70,72,70,69,67,69,70,69,67,65,67,60,60,65,67,69,70,69,67,72,74,72,70,69,70,72,70,69,67,69,70,69,67,65,67,60,60,65,67,69,70,69,67,65],"durs":[4,4,4,4,6,2,8,4,4,4,4,6,2,8,4,4,4,4,6,2,8,4,4,4,4,6,2,8,8,2,2,2,2,8,2,2,2,2,8,2,2,2,2,6,2,8,4,4,4,4,8,8,8,2,2,2,2,8,2,2,2,2,8,2,2,2,2,6,2,8,4,4,4,4,8,8,16]},{"title":"What Child Is This?","set":"carol","bpm":96,"confidence":"sure","notes":[64,67,69,71,72,71,69,66,62,64,66,67,64,64,63,64,66,63,59,64,67,69,71,72,71,69,66,62,64,66,67,66,64,63,61,63,64,74,74,73,71,69,66,62,64,66,67,64,64,63,64,66,63,59,74,74,73,71,69,66,62,64,66,67,66,64,63,61,63,64],"durs":[2,4,2,3,1,2,4,2,3,1,2,4,2,3,1,2,4,2,4,2,4,2,3,1,2,4,2,3,1,2,3,1,2,3,1,2,12,6,3,1,2,4,2,3,1,2,4,2,3,1,2,4,2,6,6,3,1,2,4,2,3,1,2,3,1,2,3,1,2,12]},{"title":"In the Bleak Midwinter","set":"carol","bpm":80,"confidence":"check","notes":[69,70,72,69,67,65,67,69,67,62,67,69,70,72,69,67,65,67,69,67,64,65],"durs":[6,2,4,4,8,8,6,2,4,4,16,6,2,4,4,8,8,6,2,4,4,16]},{"title":"O Come, O Come, Emmanuel","set":"carol","bpm":90,"confidence":"sure","notes":[64,67,71,71,71,69,72,71,69,67,69,71,67,64,67,69,66,64,62,64,69,69,64,64,66,67,66,64,62,67,69,71,71,71,69,72,71,69,67,74,74,71,71,69,72,71,69,67,69,71,67,64,67,69,66,64,62,64],"durs":[4,4,4,4,4,4,4,4,4,12,4,4,4,4,4,4,4,4,4,12,4,4,4,4,4,8,4,4,12,4,4,4,4,4,4,4,4,4,12,4,8,4,4,4,4,4,4,12,4,4,4,4,4,4,4,4,4,16]},{"title":"Twinkle Twinkle Little Star","set":"nursery","bpm":100,"confidence":"sure","notes":[60,60,67,67,69,69,67,65,65,64,64,62,62,60,67,67,65,65,64,64,62,67,67,65,65,64,64,62,60,60,67,67,69,69,67,65,65,64,64,62,62,60],"durs":[4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8]},{"title":"Baa Baa Black Sheep","set":"nursery","bpm":100,"confidence":"sure","notes":[60,60,67,67,69,69,69,69,67,65,65,64,64,62,62,60,67,67,67,65,65,64,64,64,62,67,67,67,65,65,65,65,64,64,64,64,62],"durs":[4,4,4,4,2,2,2,2,8,4,4,4,4,4,4,8,4,2,2,4,4,4,2,2,8,4,2,2,2,2,2,2,2,2,2,2,8]},{"title":"Mary Had a Little Lamb","set":"nursery","bpm":112,"confidence":"sure","notes":[64,62,60,62,64,64,64,62,62,62,64,67,67,64,62,60,62,64,64,64,64,62,62,64,62,60],"durs":[4,4,4,4,4,4,8,4,4,8,4,4,8,4,4,4,4,4,4,4,4,4,4,4,4,16]},{"title":"Old MacDonald Had a Farm","set":"nursery","bpm":120,"confidence":"sure","notes":[67,67,67,62,64,64,62,71,71,69,69,67,62,67,67,67,62,64,64,62,71,71,69,69,67,62,62,67,67,67,62,62,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,62,64,64,62,71,71,69,69,67],"durs":[4,4,4,4,4,4,8,4,4,4,4,12,4,4,4,4,4,4,4,8,4,4,4,4,12,2,2,4,4,4,2,2,4,4,8,2,2,4,2,2,4,2,2,2,2,4,4,4,4,4,4,4,4,8,4,4,4,4,16]},{"title":"Row, Row, Row Your Boat","set":"nursery","bpm":110,"confidence":"sure","notes":[60,60,60,62,64,64,62,64,65,67,72,72,72,67,67,67,64,64,64,60,60,60,67,65,64,62,60],"durs":[6,6,4,2,6,4,2,4,2,12,2,2,2,2,2,2,2,2,2,2,2,2,4,2,4,2,12]},{"title":"Humpty Dumpty","set":"nursery","bpm":120,"confidence":"check","notes":[64,67,65,69,67,69,71,72,72,69,71,67,69,67,65,64,64,64,64,67,67,65,65,65,69,69,67,67,72,71,69,67,65,62,60],"durs":[4,2,4,2,2,2,2,6,4,2,4,2,2,2,2,6,2,2,2,4,2,2,2,2,4,2,2,2,2,4,2,2,2,2,6]},{"title":"Hickory Dickory Dock","set":"nursery","bpm":120,"confidence":"check","notes":[60,62,64,65,67,69,67,0,67,72,71,69,67,65,0,64,64,64,64,65,64,62,60,62,64,65,67,69,60],"durs":[2,2,2,2,2,2,6,4,2,4,2,4,2,6,4,2,4,2,6,4,2,6,2,2,2,2,2,2,12]},{"title":"Incy Wincy Spider","set":"nursery","bpm":110,"confidence":"sure","notes":[55,60,60,60,62,64,64,64,62,60,62,64,60,64,64,65,67,65,64,65,67,64,60,60,62,64,62,60,62,64,60,55,60,60,60,62,64,64,64,62,60,62,64,60],"durs":[2,4,2,4,2,6,4,2,4,2,4,2,12,6,4,2,12,4,2,4,2,12,6,4,2,12,4,2,4,2,10,2,4,2,4,2,6,4,2,4,2,4,2,12]},{"title":"London Bridge Is Falling Down","set":"nursery","bpm":110,"confidence":"sure","notes":[67,69,67,65,64,65,67,62,64,65,64,65,67,67,69,67,65,64,65,67,62,67,64,60],"durs":[3,1,2,2,2,2,4,2,2,4,2,2,4,3,1,2,2,2,2,4,4,4,2,6]},{"title":"Pop Goes the Weasel","set":"nursery","bpm":132,"confidence":"sure","notes":[55,60,60,62,62,64,67,64,60,55,60,60,62,62,64,60,55,60,60,62,62,64,67,64,60,69,62,65,64,60],"durs":[2,4,2,4,2,2,2,2,4,2,4,2,4,2,6,4,2,4,2,4,2,2,2,2,6,6,4,2,6,6]},{"title":"Jack and Jill","set":"nursery","bpm":120,"confidence":"check","notes":[60,60,62,62,64,65,67,69,69,67,65,64,62,60,60,60,62,62,64,65,67,69,67,65,62,60],"durs":[4,2,4,2,4,2,6,4,2,4,2,4,2,6,4,2,4,2,4,2,6,4,2,4,2,12]},{"title":"Hey Diddle Diddle","set":"nursery","bpm":120,"confidence":"check","notes":[67,64,67,64,67,69,67,65,64,62,64,60,64,60,62,67,64,67,64,67,69,67,65,64,62,64,62,64,62,60],"durs":[4,2,4,2,2,2,2,2,2,2,4,2,4,2,12,4,2,4,2,2,2,2,2,2,2,4,2,4,2,12]}];/*QUIZ_TUNES_END*/
 
 // Must match levels.h on the Pico (same order)
 const LEVELS = [
@@ -172,7 +217,8 @@ const LEVELS = [
 ];
 
 const $ = id => document.getElementById(id);
-let device = null, commandChar = null, statusChar = null, timerChar = null;
+let device = null, commandChar = null, statusChar = null, timerChar = null, quizChar = null;
+let quiz = { set: 0, tune: -1, revealed: false, playing: false };
 let timesEdited = false;
 let writeChain = Promise.resolve();
 let manualDisconnect = false;
@@ -194,6 +240,7 @@ function controls() { return document.querySelectorAll("[data-cmd]"); }
 function setConnected(on) {
   controls().forEach(b => b.disabled = !on);
   ["onTime", "offTime", "saveTimes"].forEach(id => $(id).disabled = !on);
+  document.querySelectorAll(".qbtn").forEach(b => b.disabled = !on);
   const btn = $("connect");
   btn.textContent = on ? "Connected · tap to disconnect" : "Connect to lights";
   btn.classList.toggle("connected", on);
@@ -204,6 +251,7 @@ function setConnected(on) {
     $("stEffect").textContent = "Tap Connect to begin";
     $("timerNote").textContent = "Connect to see the timer.";
     $("timerNote").classList.remove("warn");
+    showQuiz("Q0");
   }
 }
 
@@ -251,6 +299,76 @@ function showTimer(text) {
   }
 }
 
+// ---------- music quiz ----------
+// Quiz status from the Pico looks like "Q1 3/12 T5 P1 R0"
+function showQuiz(text) {
+  const m = /Q(\d)(?:\s+(\d+)\/(\d+)\s+T(\d+)\s+P(\d)\s+R(\d))?/.exec(text);
+  if (!m) return;
+  const set = +m[1];
+  const newTune = set ? +m[4] : -1;
+  if (newTune !== quiz.tune) $("quizAnswer").hidden = true;   // new tune: hide the old answer
+  quiz = { set, tune: newTune, playing: m[5] === "1", revealed: m[6] === "1" };
+  $("quizStart").hidden = !!set;
+  $("quizRun").hidden = !set;
+  $("quizHint").hidden = !!set;
+  $("normalControls").classList.toggle("paused", !!set);
+  $("powerControls").classList.toggle("paused", !!set);
+  if (!set) return;
+  $("quizName").textContent = set === 1 ? "Carol quiz" : "Nursery rhyme quiz";
+  $("quizCount").textContent = `Tune ${m[2]} of ${m[3]}`;
+  $("quizPlay").textContent = quiz.playing ? "■ Playing… tap to restart" : "▶ Play tune";
+}
+
+// The phone plays the tune itself on Reveal (the Pico lights follow along).
+let audioCtx = null, voices = [];
+function stopPhoneTune() {
+  voices.forEach(o => { try { o.stop(); } catch (e) {} });
+  voices = [];
+}
+function playPhoneTune(id) {
+  stopPhoneTune();
+  const t = QUIZ_TUNES[id];
+  if (!t || !$("phoneSound").checked) return;
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  const ms16 = 60000 / (t.bpm * 4);
+  const t0 = audioCtx.currentTime + 0.12;          // small delay so the lights catch up
+  let at = 0;
+  t.notes.forEach((m, i) => {
+    const len = t.durs[i] * ms16;
+    const gap = Math.min(120, Math.max(25, len * 0.12));
+    if (m) {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = "triangle";
+      o.frequency.value = 440 * Math.pow(2, (m - 69) / 12);
+      const s = t0 + at / 1000, e = t0 + (at + len - gap) / 1000;
+      g.gain.setValueAtTime(0, s);
+      g.gain.linearRampToValueAtTime(0.35, s + 0.015);
+      g.gain.setTargetAtTime(0.22, s + 0.03, 0.1);
+      g.gain.setTargetAtTime(0, e, 0.02);
+      o.connect(g).connect(audioCtx.destination);
+      o.start(s); o.stop(e + 0.15);
+      voices.push(o);
+    }
+    at += len;
+  });
+}
+
+$("startCarol").addEventListener("click", () => send("C"));
+$("startNursery").addEventListener("click", () => send("N"));
+$("quizPlay").addEventListener("click", () => { stopPhoneTune(); send("p"); });
+$("quizNext").addEventListener("click", () => { stopPhoneTune(); send("x"); });
+$("quizEnd").addEventListener("click", () => { stopPhoneTune(); send("q"); });
+$("sideCheck").addEventListener("click", () => send("f"));
+$("quizReveal").addEventListener("click", () => {
+  if (quiz.tune < 0) return;
+  const t = QUIZ_TUNES[quiz.tune];
+  $("quizTitle").textContent = t ? t.title : `Tune ${quiz.tune}`;
+  $("quizAnswer").hidden = false;
+  send("r");
+  playPhoneTune(quiz.tune);
+});
+
 function send(cmd) {
   if (!commandChar) return;
   const data = encoder.encode(cmd);
@@ -292,6 +410,18 @@ async function connect() {
       showTimer(decoder.decode(await timerChar.readValue()));
     } catch (e) { timerChar = null; }
 
+    try {   // the music quiz needs the Pico code from November 2026 or later
+      quizChar = await service.getCharacteristic(QUIZ_UUID);
+      quizChar.addEventListener("characteristicvaluechanged", e => showQuiz(decoder.decode(e.target.value)));
+      await quizChar.startNotifications();
+      showQuiz(decoder.decode(await quizChar.readValue()));
+      $("quizBox").classList.remove("paused");
+    } catch (e) {
+      quizChar = null;
+      $("quizBox").classList.add("paused");
+      $("quizHint").textContent = "The lights need updating before the quiz will work.";
+    }
+
     setConnected(true);
     // Give the lights the current time (seconds since 1970, GMT)
     send("T" + Math.floor(Date.now() / 1000) + ";");
@@ -304,7 +434,8 @@ async function connect() {
 }
 
 function onDisconnected() {
-  commandChar = statusChar = timerChar = null;
+  commandChar = statusChar = timerChar = quizChar = null;
+  stopPhoneTune();
   setConnected(false);
   showNote(manualDisconnect ? "" : "Lost connection to the lights. Tap Connect to reconnect.");
   manualDisconnect = false;
