@@ -88,6 +88,7 @@
          display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; }
   .ctl:active:not(:disabled) { filter: brightness(1.15); }
   .ctl.toggle.on { box-shadow: inset 0 0 0 2px var(--gold); }
+  .ctl.toggle.on:disabled { box-shadow: none; }
   .ctl .big { font-size: 1.3rem; line-height: 1; }
   .wide { width: 100%; }
 
@@ -98,6 +99,9 @@
   .quiz-head b { font-size: 1.3rem; color: var(--gold); line-height: 1.25; }
   .quiz-head span { color: var(--muted); font-size: .95rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .playbig { min-height: 64px; font-size: 1.15rem; background: linear-gradient(135deg, #2f7d4f, #23633d); color: #fff; }
+  .playbig.busy { pointer-events: none; background: var(--card-2); color: var(--gold); box-shadow: inset 0 0 0 2px var(--gold); animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .6; } }
+  @media (prefers-reduced-motion: reduce) { .playbig.busy { animation: none; } }
   .answer { background: var(--bg); border: 2px dashed var(--gold); border-radius: 14px; padding: 14px; text-align: center; }
   .answer small { display: block; color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; }
   .answer b { display: block; font-size: 1.35rem; color: var(--gold); margin-top: 4px; }
@@ -319,32 +323,48 @@ function showTimer(text) {
 }
 
 // ---------- music quiz ----------
-// Quiz status from the Pico looks like "Q1 3/12 T5 P1 R0"
+// Quiz status from the Pico looks like "Q1 3/12 T5 P1 R0" (P1 = a tune is playing)
+let revealPlaying = false;   // the tune now playing was started by Reveal
+let playedOnce = false;      // this tune has been played at least once
+
 function showQuiz(text) {
   const m = /Q(\d)(?:\s+(\d+)\/(\d+)\s+T(\d+)\s+P(\d)\s+R(\d))?/.exec(text);
   if (!m) return;
   const set = +m[1];
   const tune = set ? +m[4] : -1;
+  if (tune !== quiz.tune) playedOnce = false;           // a new tune
   quiz = { set, tune, playing: m[5] === "1" };
+  if (!quiz.playing) { revealPlaying = false; stopPhoneTune(); }
   if (set) {
     const t = QUIZ_TUNES[tune];
     $("quizName").textContent = t ? t.title : `Tune ${tune}`;
     $("quizCount").textContent = `${m[2]} of ${m[3]}`;
-    $("quizPlay").textContent = quiz.playing ? "↻ Restart" : "▶ Play tune";
-  } else {
-    stopPhoneTune();
   }
+  updateQuizButtons();
   render();
 }
 
+// While a tune plays, Play shows "Tune playing" and the other buttons wait.
+// Sound can only be switched while Reveal is playing the tune.
+function updateQuizButtons() {
+  if (!commandChar) return;
+  const busy = quiz.playing;
+  const play = $("quizPlay");
+  play.classList.toggle("busy", busy);
+  play.textContent = busy ? "♪ Playing…" : (playedOnce ? "▶ Play again" : "▶ Play tune");
+  $("quizNext").disabled = busy;
+  $("quizReveal").disabled = busy;
+  $("phoneSound").disabled = !(busy && revealPlaying);
+}
+
 // The phone plays the tune itself on Reveal (the lights follow along).
-let audioCtx = null, voices = [];
+let audioCtx = null, master = null, voices = [];
 let phoneSound = true;
-try { phoneSound = localStorage.getItem("phoneSound") !== "off"; } catch (e) {}
 function showPhoneSound() {
   $("phoneSound").classList.toggle("on", phoneSound);
   $("phoneSoundLabel").textContent = phoneSound ? "Sound on" : "Sound off";
   $("phoneSound").querySelector(".big").textContent = phoneSound ? "🔊" : "🔇";
+  if (master) master.gain.value = phoneSound ? 1 : 0;
 }
 showPhoneSound();
 
@@ -355,9 +375,15 @@ function stopPhoneTune() {
 function playPhoneTune(id) {
   stopPhoneTune();
   const t = QUIZ_TUNES[id];
-  if (!t || !phoneSound) return;
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (!t) return;
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    master = audioCtx.createGain();
+    master.connect(audioCtx.destination);
+  }
   if (audioCtx.state === "suspended") audioCtx.resume();
+  phoneSound = true;                               // each Reveal starts with sound on
+  showPhoneSound();
   const ms16 = 60000 / (t.bpm * 4);
   const t0 = audioCtx.currentTime + 0.12;          // small delay so the lights catch up
   let at = 0;
@@ -373,7 +399,7 @@ function playPhoneTune(id) {
       g.gain.linearRampToValueAtTime(0.35, s + 0.015);
       g.gain.setTargetAtTime(0.22, s + 0.03, 0.1);
       g.gain.setTargetAtTime(0, e, 0.02);
-      o.connect(g).connect(audioCtx.destination);
+      o.connect(g).connect(master);
       o.start(s); o.stop(e + 0.15);
       voices.push(o);
     }
@@ -381,17 +407,25 @@ function playPhoneTune(id) {
   });
 }
 
-$("quizPlay").addEventListener("click", () => { stopPhoneTune(); send("p"); });
+$("quizPlay").addEventListener("click", () => {
+  if (quiz.playing) return;
+  stopPhoneTune();
+  revealPlaying = false;
+  playedOnce = true;
+  quiz.playing = true; updateQuizButtons();          // show "playing" straight away
+  send("p");
+});
 $("quizNext").addEventListener("click", () => { stopPhoneTune(); send("x"); });
 $("quizReveal").addEventListener("click", () => {
-  if (quiz.tune < 0) return;
+  if (quiz.tune < 0 || quiz.playing) return;
+  revealPlaying = true;
+  playedOnce = true;
+  quiz.playing = true; updateQuizButtons();
   send("r");
   playPhoneTune(quiz.tune);
 });
 $("phoneSound").addEventListener("click", () => {
   phoneSound = !phoneSound;
-  try { localStorage.setItem("phoneSound", phoneSound ? "on" : "off"); } catch (e) {}
-  if (!phoneSound) stopPhoneTune();
   showPhoneSound();
 });
 
