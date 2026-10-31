@@ -14,7 +14,6 @@
     --muted: #9aa6c2;
     --gold: #f2b84b;
     --red: #d9434e;
-    --green: #3fae6a;
     --ok: #3fae6a;
     --warn: #e0a030;
     --radius: 16px;
@@ -30,6 +29,7 @@
     padding: 16px 16px 32px;
   }
   main { max-width: 480px; margin: 0 auto; }
+  [hidden] { display: none !important; }
   header { display: flex; align-items: center; justify-content: space-between; margin: 4px 0 16px; }
   h1 { font-size: 1.5rem; margin: 0; letter-spacing: .01em; }
   h1 span { color: var(--gold); }
@@ -48,66 +48,75 @@
 
   .connect { width: 100%; padding: 18px; border-radius: var(--radius); font-size: 1.1rem; font-weight: 700;
              background: linear-gradient(135deg, var(--red), #b52a3a); color: #fff;
-             box-shadow: 0 6px 20px rgba(217,67,78,.35); }
-  .connect.connected { background: var(--card); box-shadow: none; color: var(--muted); font-weight: 600; font-size: .95rem; padding: 12px; }
+             box-shadow: 0 6px 20px rgba(217,67,78,.35); margin-bottom: 16px; }
 
-  .status { background: var(--card); border-radius: var(--radius); padding: 16px; margin-top: 16px; }
-  .status .level { font-size: 1.25rem; font-weight: 700; }
-  .status .effect { color: var(--muted); margin-top: 4px; }
-  .status .meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-  .tag { font-size: .8rem; background: var(--card-2); padding: 4px 10px; border-radius: 999px; color: var(--muted); }
+  .note { margin-bottom: 16px; padding: 14px; border-radius: var(--radius); background: #3a2a14;
+          color: #f6dcae; font-size: .9rem; line-height: 1.4; }
 
+  /* Now showing */
+  .status { background: var(--card); border-radius: var(--radius); padding: 16px; }
+  .status .now { font-size: 1.25rem; font-weight: 700; }
+  .status .detail { color: var(--muted); margin-top: 4px; }
+
+  /* Mode grid */
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .mode { background: var(--card); border-radius: 14px; padding: 14px 10px; min-height: 64px; font-weight: 600;
+          display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center;
+          border: 2px solid transparent; transition: transform .1s; }
+  .mode:active:not(:disabled) { transform: scale(.97); }
+  .mode .big { font-size: 1.35rem; line-height: 1; }
+  .mode.active { border-color: var(--gold); background: var(--card-2); }
+  .mode.off { grid-column: span 2; margin-top: 6px; }
+  .mode.off.active { border-color: var(--muted); }
+
+  /* Mode controls */
+  .panel { background: var(--card); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+  .panel h3 { margin: 0; font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .panel p { margin: 0; color: var(--muted); line-height: 1.45; font-size: .95rem; }
   .levels { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-  .lvl { aspect-ratio: 1 / 1.25; border-radius: 14px; display: flex; flex-direction: column;
-         align-items: center; justify-content: center; gap: 4px; background: var(--card);
-         border: 2px solid transparent; transition: transform .1s, border-color .2s; }
-  .lvl:active:not(:disabled) { transform: scale(.95); }
-  .lvl b { font-size: 1.5rem; }
+  .lvl { aspect-ratio: 1 / 1.2; border-radius: 12px; display: flex; flex-direction: column;
+         align-items: center; justify-content: center; gap: 4px; background: var(--card-2);
+         border: 2px solid transparent; }
+  .lvl b { font-size: 1.4rem; }
   .lvl small { font-size: .65rem; color: var(--muted); }
   .lvl .dot { width: 22px; height: 6px; border-radius: 3px; }
-  .lvl.active { border-color: var(--gold); background: var(--card-2); }
+  .lvl.active { border-color: var(--gold); }
   .lvl.active small { color: var(--text); }
 
-  .shuffle { width: 100%; margin-top: 8px; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .ctl { background: var(--card); border-radius: 14px; padding: 16px 12px; font-weight: 600;
+  .ctl { background: var(--card-2); border-radius: 14px; padding: 14px 12px; font-weight: 600;
          display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; }
-  .ctl:active:not(:disabled) { background: var(--card-2); }
-  .ctl.toggle.on { background: var(--card-2); box-shadow: inset 0 0 0 2px var(--gold); }
-  .ctl .big { font-size: 1.4rem; line-height: 1; }
+  .ctl:active:not(:disabled) { filter: brightness(1.15); }
+  .ctl.toggle.on { box-shadow: inset 0 0 0 2px var(--gold); }
+  .ctl .big { font-size: 1.3rem; line-height: 1; }
+  .wide { width: 100%; }
 
-  .note { margin-top: 16px; padding: 14px; border-radius: var(--radius); background: #3a2a14;
-          color: #f6dcae; font-size: .9rem; line-height: 1.4; display: none; }
-  .note.show { display: block; }
-  .timer { background: var(--card); border-radius: var(--radius); padding: 14px; }
-  .times { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .quiz-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .quiz-head b { font-size: 1.1rem; }
+  .quiz-head span { color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
+  .playbig { min-height: 64px; font-size: 1.15rem; background: linear-gradient(135deg, #2f7d4f, #23633d); color: #fff; }
+  .answer { background: var(--bg); border: 2px dashed var(--gold); border-radius: 14px; padding: 14px; text-align: center; }
+  .answer small { display: block; color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; }
+  .answer b { display: block; font-size: 1.35rem; color: var(--gold); margin-top: 4px; }
+  .swatches { display: flex; gap: 8px 14px; flex-wrap: wrap; }
+  .swatch { display: inline-flex; align-items: center; gap: 6px; font-size: .9rem; color: var(--text); }
+  .swatch i { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+
+  /* Settings */
+  .settings { background: var(--card); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; }
+  .row b { font-weight: 600; }
+  .row span { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .times { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .times label { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; color: var(--muted); }
   .times input { font: inherit; font-size: 1.3rem; font-weight: 600; color: var(--text); background: var(--card-2);
                  border: 2px solid transparent; border-radius: 12px; padding: 10px; width: 100%; color-scheme: dark; }
   .times input:focus { outline: none; border-color: var(--gold); }
   .times input.bad { border-color: var(--red); }
-  .times-help { font-size: .8rem; color: var(--muted); margin: -2px 0 10px; }
-  .timer .ctl { background: var(--card-2); }
-  .timer .ctl.dirty { box-shadow: inset 0 0 0 2px var(--gold); }
-  .tnote { margin-top: 10px; font-size: .85rem; color: var(--muted); line-height: 1.4; }
-  .tnote.warn { color: #f6dcae; }
-  .quiz { background: var(--card); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-  .quiz .ctl { background: var(--card-2); }
-  #quizRun { display: flex; flex-direction: column; gap: 10px; }
-  .quiz-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-  .quiz-head b { font-size: 1.1rem; }
-  .quiz-head span { color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
-  .playbig { width: 100%; min-height: 64px; font-size: 1.15rem; background: linear-gradient(135deg, #2f7d4f, #23633d) !important; color: #fff; }
-  .answer { background: var(--bg); border: 2px dashed var(--gold); border-radius: 14px; padding: 14px; text-align: center; }
-  .answer small { display: block; color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; }
-  .answer b { display: block; font-size: 1.35rem; color: var(--gold); margin-top: 4px; }
-  .linkbtn { background: none; color: var(--muted); text-decoration: underline; padding: 6px; font-size: .9rem; align-self: center; }
-  .check { display: flex; gap: 8px; align-items: center; font-size: .9rem; color: var(--muted); }
-  .check input { width: 20px; height: 20px; accent-color: var(--gold); }
-  .paused { opacity: .35; pointer-events: none; }
-  .qhint { font-size: .85rem; color: var(--muted); line-height: 1.4; margin: 0; }
-  [hidden] { display: none !important; }
-  h2 .hint { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .ctl.dirty { box-shadow: inset 0 0 0 2px var(--gold); }
+  .hint { font-size: .8rem; color: var(--muted); line-height: 1.4; margin: 0; }
+  .hint.warn { color: #f6dcae; }
+  hr { border: 0; border-top: 1px solid var(--card-2); margin: 2px 0; width: 100%; }
   footer { text-align: center; color: var(--muted); font-size: .75rem; margin-top: 28px; }
 </style>
 </head>
@@ -119,77 +128,80 @@
   </header>
 
   <button id="connect" class="connect">Connect to lights</button>
-
-  <div id="note" class="note"></div>
+  <div id="note" class="note" hidden></div>
 
   <section class="status" aria-live="polite">
-    <div class="level" id="stLevel">—</div>
-    <div class="effect" id="stEffect">Tap Connect to begin</div>
-    <div class="meta">
-      <span class="tag" id="stAuto">Auto —</span>
-      <span class="tag" id="stBright">Brightness —</span>
-      <span class="tag" id="stOn">Lights —</span>
-    </div>
+    <div class="now" id="stNow">—</div>
+    <div class="detail" id="stDetail">Tap Connect to begin</div>
   </section>
 
-  <h2>Music quiz</h2>
-  <div class="quiz" id="quizBox">
-    <div id="quizStart">
-      <div class="grid2">
-        <button class="ctl qbtn" id="startCarol" disabled><span class="big">🎄</span> Carol quiz</button>
-        <button class="ctl qbtn" id="startNursery" disabled><span class="big">🧸</span> Nursery rhymes</button>
-      </div>
+  <h2>Mode</h2>
+  <div class="modes" id="modes">
+    <button class="mode" data-mode="0" data-cmd="e" disabled><span class="big">✨</span> One effect</button>
+    <button class="mode" data-mode="1" data-cmd="a" disabled><span class="big">🔁</span> Auto</button>
+    <button class="mode" data-mode="2" data-cmd="s" disabled><span class="big">🔀</span> Shuffle all</button>
+    <button class="mode" data-mode="3" data-cmd="f" disabled><span class="big">🧱</span> Fireplace</button>
+    <button class="mode" data-mode="4" data-cmd="C" disabled><span class="big">🎄</span> Carol quiz</button>
+    <button class="mode" data-mode="5" data-cmd="N" disabled><span class="big">🧸</span> Nursery quiz</button>
+    <button class="mode off" data-mode="6" data-cmd="o" disabled><span class="big">⏻</span> Off</button>
+  </div>
+
+  <!-- Controls for the chosen mode (only one shows at a time) -->
+  <section id="panelEffects" class="panel" hidden>
+    <h3>Energy level</h3>
+    <div class="levels" id="levels"></div>
+    <button class="ctl wide" data-cmd="n" disabled><span class="big">⏭</span> Next effect</button>
+  </section>
+
+  <section id="panelShuffle" class="panel" hidden>
+    <p>All 13 effects in a random order, changing every minute.</p>
+    <button class="ctl wide" data-cmd="n" disabled><span class="big">⏭</span> Skip to the next effect</button>
+  </section>
+
+  <section id="panelFire" class="panel" hidden>
+    <div class="swatches">
+      <span class="swatch"><i style="background:#e33"></i> Right side</span>
+      <span class="swatch"><i style="background:#3c3"></i> Top</span>
+      <span class="swatch"><i style="background:#36f"></i> Left side</span>
+      <span class="swatch"><i style="background:#fff"></i> First light of each</span>
     </div>
-    <div id="quizRun" hidden>
-      <div class="quiz-head"><b id="quizName">Carol quiz</b><span id="quizCount">Tune 1 of 12</span></div>
-      <button class="ctl qbtn playbig" id="quizPlay" disabled>▶ Play tune</button>
-      <div class="grid2">
-        <button class="ctl qbtn" id="quizReveal" disabled><span class="big">👁</span> Reveal</button>
-        <button class="ctl qbtn" id="quizNext" disabled><span class="big">⏭</span> Next tune</button>
-      </div>
-      <div class="answer" id="quizAnswer" hidden><small>Answer</small><b id="quizTitle"></b></div>
-      <label class="check" for="phoneSound"><input type="checkbox" id="phoneSound" checked> Play the tune on this phone at Reveal</label>
-      <button class="linkbtn qbtn" id="quizEnd" disabled>End quiz</button>
+    <p>If a colour goes round a corner, count the lights on each side and tell Claude the three numbers.</p>
+  </section>
+
+  <section id="panelQuiz" class="panel" hidden>
+    <div class="quiz-head"><b id="quizName">Carol quiz</b><span id="quizCount">Tune 1 of 12</span></div>
+    <button class="ctl playbig wide" id="quizPlay" disabled>▶ Play tune</button>
+    <div class="grid2">
+      <button class="ctl" id="quizReveal" disabled><span class="big">👁</span> Reveal</button>
+      <button class="ctl" id="quizNext" disabled><span class="big">⏭</span> Next tune</button>
     </div>
-    <p class="qhint" id="quizHint">Tunes come in a random order each game. Only you see the answer, on this phone.</p>
-    <button class="linkbtn qbtn" id="sideCheck" disabled>Show fireplace sides (red, green, blue)</button>
-  </div>
+    <div class="answer" id="quizAnswer" hidden><small>Answer</small><b id="quizTitle"></b></div>
+    <button class="ctl toggle on wide" id="phoneSound" disabled><span class="big">🔊</span> <span id="phoneSoundLabel">Phone plays the tune at Reveal</span></button>
+  </section>
 
-  <div id="normalControls">
-  <h2>Energy level</h2>
-  <div class="levels" id="levels"></div>
-  <button class="ctl toggle shuffle" id="shuffleBtn" data-cmd="s" disabled><span class="big">🔀</span> Shuffle all effects</button>
+  <section id="panelOff" class="panel" hidden>
+    <p>The lights are off. Tap any mode to turn them on.</p>
+  </section>
 
-  <h2>Effect</h2>
-  <div class="grid2">
-    <button class="ctl" data-cmd="n" disabled><span class="big">⏭</span> Next effect</button>
-    <button class="ctl toggle" id="autoBtn" data-cmd="a" disabled><span class="big">🔁</span> Auto</button>
-  </div>
-  </div>
-
-  <h2>Brightness</h2>
-  <div class="grid2">
-    <button class="ctl" data-cmd="-" disabled><span class="big">−</span> Dimmer</button>
-    <button class="ctl" data-cmd="+" disabled><span class="big">+</span> Brighter</button>
-  </div>
-
-  <h2>Power</h2>
-  <div class="grid2" id="powerControls">
-    <button class="ctl toggle" id="onBtn" data-cmd="o" disabled style="grid-column: span 2;"><span class="big">⏻</span> Lights on / off</button>
-  </div>
-
-  <h2>Daily timer <span class="hint">(GMT)</span></h2>
-  <div class="timer">
+  <h2>Settings</h2>
+  <div class="settings">
+    <div class="row"><b>Brightness</b><span id="stBright">—</span></div>
+    <div class="grid2">
+      <button class="ctl" data-cmd="-" disabled><span class="big">−</span> Dimmer</button>
+      <button class="ctl" data-cmd="+" disabled><span class="big">+</span> Brighter</button>
+    </div>
+    <hr>
+    <div class="row"><b>Daily timer</b><span>GMT</span></div>
     <div class="times">
-      <label>Lights on at<input type="text" inputmode="numeric" maxlength="5" id="onTime" value="16:00" placeholder="1600" autocomplete="off" disabled></label>
-      <label>Lights off at<input type="text" inputmode="numeric" maxlength="5" id="offTime" value="23:00" placeholder="2300" autocomplete="off" disabled></label>
+      <label for="onTime">Lights on at<input type="text" inputmode="numeric" maxlength="5" id="onTime" value="16:00" placeholder="1600" autocomplete="off" disabled></label>
+      <label for="offTime">Lights off at<input type="text" inputmode="numeric" maxlength="5" id="offTime" value="23:00" placeholder="2300" autocomplete="off" disabled></label>
     </div>
-    <div class="times-help">Type the time as 4 figures using the 24-hour clock, e.g. 1630 for 4:30 pm, 2300 for 11 pm.</div>
+    <p class="hint">Type 4 figures, 24-hour clock: 1630 for 4:30 pm, 2300 for 11 pm.</p>
     <div class="grid2">
       <button class="ctl" id="saveTimes" disabled>Save times</button>
       <button class="ctl toggle" id="timerBtn" data-cmd="t" disabled><span class="big">⏱</span> Timer</button>
     </div>
-    <div class="tnote" id="timerNote">Connect to see the timer.</div>
+    <p class="hint" id="timerNote">Connect to see the timer.</p>
   </div>
 
   <footer>Keep this page open while you use it. Bluetooth range is about 10 m.</footer>
@@ -204,9 +216,6 @@ const STATUS_UUID  = "b1006b19-b5bd-413d-ad24-2c93dbbc0697";
 const TIMER_UUID   = "5d3e9a71-0c84-4b6f-9e2a-7f1c6b8d4e20";
 const QUIZ_UUID    = "3344eadc-34d4-4bd6-89ae-b9407980f1ae";
 
-// Quiz tunes - generated from tunes.py, same order as quiz_tunes.h on the Pico
-/*QUIZ_TUNES_START*/const QUIZ_TUNES = [{"title":"Silent Night","set":"carol","bpm":80,"confidence":"sure","notes":[67,69,67,64,67,69,67,64,74,74,71,72,72,67,69,69,72,71,69,67,69,67,64,69,69,72,71,69,67,69,67,64,74,74,77,74,71,72,76,72,67,64,67,65,62,60],"durs":[3,1,2,6,3,1,2,6,4,2,6,4,2,6,4,2,3,1,2,3,1,2,6,4,2,3,1,2,3,1,2,6,4,2,3,1,2,6,6,3,1,2,3,1,2,12]},{"title":"O Holy Night","set":"carol","bpm":72,"confidence":"check","notes":[64,64,64,67,0,67,69,69,65,69,72,67,0,67,64,62,60,64,65,67,65,62,60],"durs":[6,4,2,12,4,2,4,2,4,2,12,12,4,2,4,2,12,4,2,6,4,2,18]},{"title":"Joy to the World","set":"carol","bpm":100,"confidence":"sure","notes":[74,73,71,69,67,66,64,62,69,71,71,73,73,74,74,74,73,71,69,69,67,66,66,66,66,66,67,69,67,66,64,64,64,66,67,66,64,62,74,71,69,67,66,67,66,64,62],"durs":[4,3,1,6,2,4,4,6,2,6,2,6,2,6,2,2,2,2,2,3,1,2,2,2,2,3,1,6,1,1,2,2,3,1,6,1,1,2,4,2,3,1,2,2,4,4,8]},{"title":"Hark! The Herald Angels Sing","set":"carol","bpm":108,"confidence":"sure","notes":[62,67,67,66,67,71,71,69,74,74,74,72,71,69,71,62,67,67,66,67,71,71,69,74,69,69,66,66,64,62,74,74,74,67,72,71,71,69,74,74,74,67,72,71,71,69,76,76,76,74,72,71,72,69,71,72,74,67,67,69,71],"durs":[4,4,6,2,4,4,4,4,4,4,6,2,4,4,8,4,4,6,2,4,4,4,4,4,4,6,2,4,4,8,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,8,4,2,2,6,2,4,4,8]},{"title":"O Come, All Ye Faithful","set":"carol","bpm":96,"confidence":"sure","notes":[67,67,62,67,69,62,71,69,71,72,71,69,67,67,66,64,66,67,69,71,66,64,62,62,67,67,66,67,69,67,62,71,71,69,71,72,71,69,71,72,71,69,67,66,67,72,71,69,67,67],"durs":[4,8,4,4,8,8,4,4,4,4,8,4,4,8,4,4,4,4,4,4,8,6,2,12,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,8,6,2,12]},{"title":"Away in a Manger","set":"carol","bpm":100,"confidence":"sure","notes":[62,67,67,69,71,67,67,71,72,74,74,76,72,69,71,72,72,74,71,71,67,71,69,64,67,66,62,67,67,69,71,67,67,71,72,74,74,76,72,69,71,72,72,74,71,71,67,71,69,64,66,67],"durs":[4,4,4,2,2,4,4,2,2,4,4,4,8,2,2,4,4,4,4,4,2,2,4,4,4,8,4,4,4,2,2,4,4,2,2,4,4,4,8,2,2,4,4,4,4,4,2,2,4,4,4,8]},{"title":"The First Noel","set":"carol","bpm":120,"confidence":"sure","notes":[66,64,62,64,66,67,69,71,73,74,73,71,69,71,73,74,73,71,69,71,73,74,69,67,66,66,64,62,64,66,67,69,74,73,71,71,69,74,73,71,69,71,73,74,69,67,66],"durs":[2,2,6,2,2,2,8,2,2,4,4,4,8,2,2,4,4,4,4,4,4,4,4,4,8,2,2,6,2,2,2,8,2,2,8,4,12,4,4,4,4,4,4,4,4,4,8]},{"title":"God Rest You Merry, Gentlemen","set":"carol","bpm":120,"confidence":"sure","notes":[64,64,71,71,69,67,66,64,62,64,66,67,69,71,64,64,71,71,69,67,66,64,62,64,66,67,69,71,71,72,69,71,72,74,76,71,69,67,64,66,67,69,67,69,71,72,74,76,71,69,67,66,64],"durs":[4,4,4,4,4,4,4,4,4,4,4,4,4,12,4,4,4,4,4,4,4,4,4,4,4,4,4,12,4,4,4,4,4,4,4,4,4,4,4,4,4,8,4,4,4,4,4,4,4,4,4,4,12]},{"title":"Angels We Have Heard on High","set":"carol","bpm":110,"confidence":"sure","notes":[69,69,69,72,72,70,69,69,67,69,72,69,67,65,69,69,69,72,72,70,69,69,67,69,72,69,67,65,72,74,72,70,69,70,72,70,69,67,69,70,69,67,65,67,60,60,65,67,69,70,69,67,72,74,72,70,69,70,72,70,69,67,69,70,69,67,65,67,60,60,65,67,69,70,69,67,65],"durs":[4,4,4,4,6,2,8,4,4,4,4,6,2,8,4,4,4,4,6,2,8,4,4,4,4,6,2,8,8,2,2,2,2,8,2,2,2,2,8,2,2,2,2,6,2,8,4,4,4,4,8,8,8,2,2,2,2,8,2,2,2,2,8,2,2,2,2,6,2,8,4,4,4,4,8,8,16]},{"title":"What Child Is This?","set":"carol","bpm":96,"confidence":"sure","notes":[64,67,69,71,72,71,69,66,62,64,66,67,64,64,63,64,66,63,59,64,67,69,71,72,71,69,66,62,64,66,67,66,64,63,61,63,64,74,74,73,71,69,66,62,64,66,67,64,64,63,64,66,63,59,74,74,73,71,69,66,62,64,66,67,66,64,63,61,63,64],"durs":[2,4,2,3,1,2,4,2,3,1,2,4,2,3,1,2,4,2,4,2,4,2,3,1,2,4,2,3,1,2,3,1,2,3,1,2,12,6,3,1,2,4,2,3,1,2,4,2,3,1,2,4,2,6,6,3,1,2,4,2,3,1,2,3,1,2,3,1,2,12]},{"title":"In the Bleak Midwinter","set":"carol","bpm":80,"confidence":"check","notes":[69,70,72,69,67,65,67,69,67,62,67,69,70,72,69,67,65,67,69,67,64,65],"durs":[6,2,4,4,8,8,6,2,4,4,16,6,2,4,4,8,8,6,2,4,4,16]},{"title":"O Come, O Come, Emmanuel","set":"carol","bpm":90,"confidence":"sure","notes":[64,67,71,71,71,69,72,71,69,67,69,71,67,64,67,69,66,64,62,64,69,69,64,64,66,67,66,64,62,67,69,71,71,71,69,72,71,69,67,74,74,71,71,69,72,71,69,67,69,71,67,64,67,69,66,64,62,64],"durs":[4,4,4,4,4,4,4,4,4,12,4,4,4,4,4,4,4,4,4,12,4,4,4,4,4,8,4,4,12,4,4,4,4,4,4,4,4,4,12,4,8,4,4,4,4,4,4,12,4,4,4,4,4,4,4,4,4,16]},{"title":"Twinkle Twinkle Little Star","set":"nursery","bpm":100,"confidence":"sure","notes":[60,60,67,67,69,69,67,65,65,64,64,62,62,60,67,67,65,65,64,64,62,67,67,65,65,64,64,62,60,60,67,67,69,69,67,65,65,64,64,62,62,60],"durs":[4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8]},{"title":"Baa Baa Black Sheep","set":"nursery","bpm":100,"confidence":"sure","notes":[60,60,67,67,69,69,69,69,67,65,65,64,64,62,62,60,67,67,67,65,65,64,64,64,62,67,67,67,65,65,65,65,64,64,64,64,62],"durs":[4,4,4,4,2,2,2,2,8,4,4,4,4,4,4,8,4,2,2,4,4,4,2,2,8,4,2,2,2,2,2,2,2,2,2,2,8]},{"title":"Mary Had a Little Lamb","set":"nursery","bpm":112,"confidence":"sure","notes":[64,62,60,62,64,64,64,62,62,62,64,67,67,64,62,60,62,64,64,64,64,62,62,64,62,60],"durs":[4,4,4,4,4,4,8,4,4,8,4,4,8,4,4,4,4,4,4,4,4,4,4,4,4,16]},{"title":"Old MacDonald Had a Farm","set":"nursery","bpm":120,"confidence":"sure","notes":[67,67,67,62,64,64,62,71,71,69,69,67,62,67,67,67,62,64,64,62,71,71,69,69,67,62,62,67,67,67,62,62,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,62,64,64,62,71,71,69,69,67],"durs":[4,4,4,4,4,4,8,4,4,4,4,12,4,4,4,4,4,4,4,8,4,4,4,4,12,2,2,4,4,4,2,2,4,4,8,2,2,4,2,2,4,2,2,2,2,4,4,4,4,4,4,4,4,8,4,4,4,4,16]},{"title":"Row, Row, Row Your Boat","set":"nursery","bpm":110,"confidence":"sure","notes":[60,60,60,62,64,64,62,64,65,67,72,72,72,67,67,67,64,64,64,60,60,60,67,65,64,62,60],"durs":[6,6,4,2,6,4,2,4,2,12,2,2,2,2,2,2,2,2,2,2,2,2,4,2,4,2,12]},{"title":"Humpty Dumpty","set":"nursery","bpm":120,"confidence":"check","notes":[64,67,65,69,67,69,71,72,72,69,71,67,69,67,65,64,64,64,64,67,67,65,65,65,69,69,67,67,72,71,69,67,65,62,60],"durs":[4,2,4,2,2,2,2,6,4,2,4,2,2,2,2,6,2,2,2,4,2,2,2,2,4,2,2,2,2,4,2,2,2,2,6]},{"title":"Hickory Dickory Dock","set":"nursery","bpm":120,"confidence":"check","notes":[60,62,64,65,67,69,67,0,67,72,71,69,67,65,0,64,64,64,64,65,64,62,60,62,64,65,67,69,60],"durs":[2,2,2,2,2,2,6,4,2,4,2,4,2,6,4,2,4,2,6,4,2,6,2,2,2,2,2,2,12]},{"title":"Incy Wincy Spider","set":"nursery","bpm":110,"confidence":"sure","notes":[55,60,60,60,62,64,64,64,62,60,62,64,60,64,64,65,67,65,64,65,67,64,60,60,62,64,62,60,62,64,60,55,60,60,60,62,64,64,64,62,60,62,64,60],"durs":[2,4,2,4,2,6,4,2,4,2,4,2,12,6,4,2,12,4,2,4,2,12,6,4,2,12,4,2,4,2,10,2,4,2,4,2,6,4,2,4,2,4,2,12]},{"title":"London Bridge Is Falling Down","set":"nursery","bpm":110,"confidence":"sure","notes":[67,69,67,65,64,65,67,62,64,65,64,65,67,67,69,67,65,64,65,67,62,67,64,60],"durs":[3,1,2,2,2,2,4,2,2,4,2,2,4,3,1,2,2,2,2,4,4,4,2,6]},{"title":"Pop Goes the Weasel","set":"nursery","bpm":132,"confidence":"sure","notes":[55,60,60,62,62,64,67,64,60,55,60,60,62,62,64,60,55,60,60,62,62,64,67,64,60,69,62,65,64,60],"durs":[2,4,2,4,2,2,2,2,4,2,4,2,4,2,6,4,2,4,2,4,2,2,2,2,6,6,4,2,6,6]},{"title":"Jack and Jill","set":"nursery","bpm":120,"confidence":"check","notes":[60,60,62,62,64,65,67,69,69,67,65,64,62,60,60,60,62,62,64,65,67,69,67,65,62,60],"durs":[4,2,4,2,4,2,6,4,2,4,2,4,2,6,4,2,4,2,4,2,6,4,2,4,2,12]},{"title":"Hey Diddle Diddle","set":"nursery","bpm":120,"confidence":"check","notes":[67,64,67,64,67,69,67,65,64,62,64,60,64,60,62,67,64,67,64,67,69,67,65,64,62,64,62,64,62,60],"durs":[4,2,4,2,2,2,2,2,2,2,4,2,4,2,12,4,2,4,2,2,2,2,2,2,2,4,2,4,2,12]}];/*QUIZ_TUNES_END*/
-
 // Must match levels.h on the Pico (same order)
 const LEVELS = [
   { name: "Calm",    colour: "#ffb870", effects: ["Steady warm white", "Breathing warm white"] },
@@ -216,16 +225,23 @@ const LEVELS = [
   { name: "Party",   colour: "linear-gradient(90deg,#f3c,#93f,#3cf)", effects: ["Rainbow chase", "Confetti", "Fire"] },
 ];
 
+// Must match the Mode list in ChristmasLights.ino (same order)
+const MODES = ["One effect", "Auto", "Shuffle all", "Fireplace check", "Carol quiz", "Nursery rhyme quiz", "Off"];
+const PANEL_FOR_MODE = ["panelEffects", "panelEffects", "panelShuffle", "panelFire", "panelQuiz", "panelQuiz", "panelOff"];
+
+// Quiz tunes - generated from tunes.py, same order as quiz_tunes.h on the Pico
+/*QUIZ_TUNES_START*/const QUIZ_TUNES = [{"title":"Silent Night","set":"carol","bpm":80,"confidence":"sure","notes":[67,69,67,64,67,69,67,64,74,74,71,72,72,67,69,69,72,71,69,67,69,67,64,69,69,72,71,69,67,69,67,64,74,74,77,74,71,72,76,72,67,64,67,65,62,60],"durs":[3,1,2,6,3,1,2,6,4,2,6,4,2,6,4,2,3,1,2,3,1,2,6,4,2,3,1,2,3,1,2,6,4,2,3,1,2,6,6,3,1,2,3,1,2,12]},{"title":"O Holy Night","set":"carol","bpm":72,"confidence":"check","notes":[64,64,64,67,0,67,69,69,65,69,72,67,0,67,64,62,60,64,65,67,65,62,60],"durs":[6,4,2,12,4,2,4,2,4,2,12,12,4,2,4,2,12,4,2,6,4,2,18]},{"title":"Joy to the World","set":"carol","bpm":100,"confidence":"sure","notes":[74,73,71,69,67,66,64,62,69,71,71,73,73,74,74,74,73,71,69,69,67,66,66,66,66,66,67,69,67,66,64,64,64,66,67,66,64,62,74,71,69,67,66,67,66,64,62],"durs":[4,3,1,6,2,4,4,6,2,6,2,6,2,6,2,2,2,2,2,3,1,2,2,2,2,3,1,6,1,1,2,2,3,1,6,1,1,2,4,2,3,1,2,2,4,4,8]},{"title":"Hark! The Herald Angels Sing","set":"carol","bpm":108,"confidence":"sure","notes":[62,67,67,66,67,71,71,69,74,74,74,72,71,69,71,62,67,67,66,67,71,71,69,74,69,69,66,66,64,62,74,74,74,67,72,71,71,69,74,74,74,67,72,71,71,69,76,76,76,74,72,71,72,69,71,72,74,67,67,69,71],"durs":[4,4,6,2,4,4,4,4,4,4,6,2,4,4,8,4,4,6,2,4,4,4,4,4,4,6,2,4,4,8,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,8,4,2,2,6,2,4,4,8]},{"title":"O Come, All Ye Faithful","set":"carol","bpm":96,"confidence":"sure","notes":[67,67,62,67,69,62,71,69,71,72,71,69,67,67,66,64,66,67,69,71,66,64,62,62,67,67,66,67,69,67,62,71,71,69,71,72,71,69,71,72,71,69,67,66,67,72,71,69,67,67],"durs":[4,8,4,4,8,8,4,4,4,4,8,4,4,8,4,4,4,4,4,4,8,6,2,12,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,8,6,2,12]},{"title":"Away in a Manger","set":"carol","bpm":100,"confidence":"sure","notes":[62,67,67,69,71,67,67,71,72,74,74,76,72,69,71,72,72,74,71,71,67,71,69,64,67,66,62,67,67,69,71,67,67,71,72,74,74,76,72,69,71,72,72,74,71,71,67,71,69,64,66,67],"durs":[4,4,4,2,2,4,4,2,2,4,4,4,8,2,2,4,4,4,4,4,2,2,4,4,4,8,4,4,4,2,2,4,4,2,2,4,4,4,8,2,2,4,4,4,4,4,2,2,4,4,4,8]},{"title":"The First Noel","set":"carol","bpm":120,"confidence":"sure","notes":[66,64,62,64,66,67,69,71,73,74,73,71,69,71,73,74,73,71,69,71,73,74,69,67,66,66,64,62,64,66,67,69,74,73,71,71,69,74,73,71,69,71,73,74,69,67,66],"durs":[2,2,6,2,2,2,8,2,2,4,4,4,8,2,2,4,4,4,4,4,4,4,4,4,8,2,2,6,2,2,2,8,2,2,8,4,12,4,4,4,4,4,4,4,4,4,8]},{"title":"God Rest You Merry, Gentlemen","set":"carol","bpm":120,"confidence":"sure","notes":[64,64,71,71,69,67,66,64,62,64,66,67,69,71,64,64,71,71,69,67,66,64,62,64,66,67,69,71,71,72,69,71,72,74,76,71,69,67,64,66,67,69,67,69,71,72,74,76,71,69,67,66,64],"durs":[4,4,4,4,4,4,4,4,4,4,4,4,4,12,4,4,4,4,4,4,4,4,4,4,4,4,4,12,4,4,4,4,4,4,4,4,4,4,4,4,4,8,4,4,4,4,4,4,4,4,4,4,12]},{"title":"Angels We Have Heard on High","set":"carol","bpm":110,"confidence":"sure","notes":[69,69,69,72,72,70,69,69,67,69,72,69,67,65,69,69,69,72,72,70,69,69,67,69,72,69,67,65,72,74,72,70,69,70,72,70,69,67,69,70,69,67,65,67,60,60,65,67,69,70,69,67,72,74,72,70,69,70,72,70,69,67,69,70,69,67,65,67,60,60,65,67,69,70,69,67,65],"durs":[4,4,4,4,6,2,8,4,4,4,4,6,2,8,4,4,4,4,6,2,8,4,4,4,4,6,2,8,8,2,2,2,2,8,2,2,2,2,8,2,2,2,2,6,2,8,4,4,4,4,8,8,8,2,2,2,2,8,2,2,2,2,8,2,2,2,2,6,2,8,4,4,4,4,8,8,16]},{"title":"What Child Is This?","set":"carol","bpm":96,"confidence":"sure","notes":[64,67,69,71,72,71,69,66,62,64,66,67,64,64,63,64,66,63,59,64,67,69,71,72,71,69,66,62,64,66,67,66,64,63,61,63,64,74,74,73,71,69,66,62,64,66,67,64,64,63,64,66,63,59,74,74,73,71,69,66,62,64,66,67,66,64,63,61,63,64],"durs":[2,4,2,3,1,2,4,2,3,1,2,4,2,3,1,2,4,2,4,2,4,2,3,1,2,4,2,3,1,2,3,1,2,3,1,2,12,6,3,1,2,4,2,3,1,2,4,2,3,1,2,4,2,6,6,3,1,2,4,2,3,1,2,3,1,2,3,1,2,12]},{"title":"In the Bleak Midwinter","set":"carol","bpm":80,"confidence":"check","notes":[69,70,72,69,67,65,67,69,67,62,67,69,70,72,69,67,65,67,69,67,64,65],"durs":[6,2,4,4,8,8,6,2,4,4,16,6,2,4,4,8,8,6,2,4,4,16]},{"title":"O Come, O Come, Emmanuel","set":"carol","bpm":90,"confidence":"sure","notes":[64,67,71,71,71,69,72,71,69,67,69,71,67,64,67,69,66,64,62,64,69,69,64,64,66,67,66,64,62,67,69,71,71,71,69,72,71,69,67,74,74,71,71,69,72,71,69,67,69,71,67,64,67,69,66,64,62,64],"durs":[4,4,4,4,4,4,4,4,4,12,4,4,4,4,4,4,4,4,4,12,4,4,4,4,4,8,4,4,12,4,4,4,4,4,4,4,4,4,12,4,8,4,4,4,4,4,4,12,4,4,4,4,4,4,4,4,4,16]},{"title":"Twinkle Twinkle Little Star","set":"nursery","bpm":100,"confidence":"sure","notes":[60,60,67,67,69,69,67,65,65,64,64,62,62,60,67,67,65,65,64,64,62,67,67,65,65,64,64,62,60,60,67,67,69,69,67,65,65,64,64,62,62,60],"durs":[4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8,4,4,4,4,4,4,8]},{"title":"Baa Baa Black Sheep","set":"nursery","bpm":100,"confidence":"sure","notes":[60,60,67,67,69,69,69,69,67,65,65,64,64,62,62,60,67,67,67,65,65,64,64,64,62,67,67,67,65,65,65,65,64,64,64,64,62],"durs":[4,4,4,4,2,2,2,2,8,4,4,4,4,4,4,8,4,2,2,4,4,4,2,2,8,4,2,2,2,2,2,2,2,2,2,2,8]},{"title":"Mary Had a Little Lamb","set":"nursery","bpm":112,"confidence":"sure","notes":[64,62,60,62,64,64,64,62,62,62,64,67,67,64,62,60,62,64,64,64,64,62,62,64,62,60],"durs":[4,4,4,4,4,4,8,4,4,8,4,4,8,4,4,4,4,4,4,4,4,4,4,4,4,16]},{"title":"Old MacDonald Had a Farm","set":"nursery","bpm":120,"confidence":"sure","notes":[67,67,67,62,64,64,62,71,71,69,69,67,62,67,67,67,62,64,64,62,71,71,69,69,67,62,62,67,67,67,62,62,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,62,64,64,62,71,71,69,69,67],"durs":[4,4,4,4,4,4,8,4,4,4,4,12,4,4,4,4,4,4,4,8,4,4,4,4,12,2,2,4,4,4,2,2,4,4,8,2,2,4,2,2,4,2,2,2,2,4,4,4,4,4,4,4,4,8,4,4,4,4,16]},{"title":"Row, Row, Row Your Boat","set":"nursery","bpm":110,"confidence":"sure","notes":[60,60,60,62,64,64,62,64,65,67,72,72,72,67,67,67,64,64,64,60,60,60,67,65,64,62,60],"durs":[6,6,4,2,6,4,2,4,2,12,2,2,2,2,2,2,2,2,2,2,2,2,4,2,4,2,12]},{"title":"Humpty Dumpty","set":"nursery","bpm":120,"confidence":"check","notes":[64,67,65,69,67,69,71,72,72,69,71,67,69,67,65,64,64,64,64,67,67,65,65,65,69,69,67,67,72,71,69,67,65,62,60],"durs":[4,2,4,2,2,2,2,6,4,2,4,2,2,2,2,6,2,2,2,4,2,2,2,2,4,2,2,2,2,4,2,2,2,2,6]},{"title":"Hickory Dickory Dock","set":"nursery","bpm":120,"confidence":"check","notes":[60,62,64,65,67,69,67,0,67,72,71,69,67,65,0,64,64,64,64,65,64,62,60,62,64,65,67,69,60],"durs":[2,2,2,2,2,2,6,4,2,4,2,4,2,6,4,2,4,2,6,4,2,6,2,2,2,2,2,2,12]},{"title":"Incy Wincy Spider","set":"nursery","bpm":110,"confidence":"sure","notes":[55,60,60,60,62,64,64,64,62,60,62,64,60,64,64,65,67,65,64,65,67,64,60,60,62,64,62,60,62,64,60,55,60,60,60,62,64,64,64,62,60,62,64,60],"durs":[2,4,2,4,2,6,4,2,4,2,4,2,12,6,4,2,12,4,2,4,2,12,6,4,2,12,4,2,4,2,10,2,4,2,4,2,6,4,2,4,2,4,2,12]},{"title":"London Bridge Is Falling Down","set":"nursery","bpm":110,"confidence":"sure","notes":[67,69,67,65,64,65,67,62,64,65,64,65,67,67,69,67,65,64,65,67,62,67,64,60],"durs":[3,1,2,2,2,2,4,2,2,4,2,2,4,3,1,2,2,2,2,4,4,4,2,6]},{"title":"Pop Goes the Weasel","set":"nursery","bpm":132,"confidence":"sure","notes":[55,60,60,62,62,64,67,64,60,55,60,60,62,62,64,60,55,60,60,62,62,64,67,64,60,69,62,65,64,60],"durs":[2,4,2,4,2,2,2,2,4,2,4,2,4,2,6,4,2,4,2,4,2,2,2,2,6,6,4,2,6,6]},{"title":"Jack and Jill","set":"nursery","bpm":120,"confidence":"check","notes":[60,60,62,62,64,65,67,69,69,67,65,64,62,60,60,60,62,62,64,65,67,69,67,65,62,60],"durs":[4,2,4,2,4,2,6,4,2,4,2,4,2,6,4,2,4,2,4,2,6,4,2,4,2,12]},{"title":"Hey Diddle Diddle","set":"nursery","bpm":120,"confidence":"check","notes":[67,64,67,64,67,69,67,65,64,62,64,60,64,60,62,67,64,67,64,67,69,67,65,64,62,64,62,64,62,60],"durs":[4,2,4,2,2,2,2,2,2,2,4,2,4,2,12,4,2,4,2,2,2,2,2,2,2,4,2,4,2,12]}];/*QUIZ_TUNES_END*/
+
 const $ = id => document.getElementById(id);
 let device = null, commandChar = null, statusChar = null, timerChar = null, quizChar = null;
-let quiz = { set: 0, tune: -1, revealed: false, playing: false };
+let state = { mode: -1, level: 1, effect: 1 };
+let quiz = { set: 0, tune: -1, playing: false };
 let timesEdited = false;
 let writeChain = Promise.resolve();
-let manualDisconnect = false;
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-// Build the level buttons from the table above
+// Level buttons
 LEVELS.forEach((lv, i) => {
   const b = document.createElement("button");
   b.className = "lvl";
@@ -235,47 +251,61 @@ LEVELS.forEach((lv, i) => {
   $("levels").appendChild(b);
 });
 
-function controls() { return document.querySelectorAll("[data-cmd]"); }
+function allControls() { return document.querySelectorAll("main button:not(#connect), main input"); }
 
 function setConnected(on) {
-  controls().forEach(b => b.disabled = !on);
-  ["onTime", "offTime", "saveTimes"].forEach(id => $(id).disabled = !on);
-  document.querySelectorAll(".qbtn").forEach(b => b.disabled = !on);
-  const btn = $("connect");
-  btn.textContent = on ? "Connected · tap to disconnect" : "Connect to lights";
-  btn.classList.toggle("connected", on);
+  allControls().forEach(b => b.disabled = !on);
+  $("connect").hidden = on;
   $("pill").textContent = on ? "Connected" : "Not connected";
   $("pill").className = "pill" + (on ? " on" : "");
   if (!on) {
-    $("stLevel").textContent = "—";
-    $("stEffect").textContent = "Tap Connect to begin";
+    state.mode = -1;
+    $("stNow").textContent = "—";
+    $("stDetail").textContent = "Tap Connect to begin";
+    document.querySelectorAll(".mode").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p => p.hidden = true);
     $("timerNote").textContent = "Connect to see the timer.";
     $("timerNote").classList.remove("warn");
-    showQuiz("Q0");
+    stopPhoneTune();
   }
 }
 
 function showNote(msg) {
   $("note").textContent = msg;
-  $("note").classList.toggle("show", !!msg);
+  $("note").hidden = !msg;
 }
 
-// Status from the Pico looks like "L3 E2 A1 B100 O1"
+// ---------- what's showing ----------
+function render() {
+  const m = state.mode;
+  if (m < 0) return;
+  document.querySelectorAll(".mode").forEach(b => b.classList.toggle("active", +b.dataset.mode === m));
+  document.querySelectorAll(".panel").forEach(p => p.hidden = p.id !== PANEL_FOR_MODE[m]);
+  document.querySelectorAll(".lvl").forEach(b => b.classList.toggle("active", +b.dataset.cmd === state.level));
+
+  const lv = LEVELS[state.level - 1];
+  const effectName = lv && lv.effects[state.effect - 1] ? lv.effects[state.effect - 1] : `Effect ${state.effect}`;
+  $("stNow").textContent = MODES[m] || "—";
+  let detail = "";
+  if (m === 0) detail = `Level ${state.level} · ${lv ? lv.name : ""} · ${effectName}`;
+  else if (m === 1) detail = `Level ${state.level} · ${lv ? lv.name : ""} · now showing ${effectName}`;
+  else if (m === 2) detail = `Now showing ${effectName} (level ${state.level})`;
+  else if (m === 3) detail = "Each side of the fireplace in its own colour";
+  else if (m === 4 || m === 5) detail = $("quizCount").textContent;
+  else if (m === 6) detail = "The lights are off";
+  $("stDetail").textContent = detail;
+}
+
+// Status from the Pico looks like "L3 E2 M1 B100"
 function showStatus(text) {
-  const m = /L(\d+)\s+E(\d+)\s+A(\d)\s+B(\d+)\s+O(\d)(?:\s+X(\d))?/.exec(text);
-  if (!m) return;
-  const level = +m[1], effect = +m[2], auto = m[3] === "1", bright = +m[4], on = m[5] === "1";
-  const shuffle = m[6] === "1";
-  const lv = LEVELS[level - 1];
-  $("stLevel").textContent = (shuffle ? "Shuffle all · " : "") + `Level ${level}${lv ? " · " + lv.name : ""}`;
-  $("stEffect").textContent = lv && lv.effects[effect - 1] ? lv.effects[effect - 1] : `Effect ${effect}`;
-  $("stAuto").textContent = "Auto " + (auto ? "on" : "off");
-  $("stBright").textContent = `Brightness ${bright}%`;
-  $("stOn").textContent = "Lights " + (on ? "on" : "off");
-  document.querySelectorAll(".lvl").forEach(b => b.classList.toggle("active", !shuffle && +b.dataset.cmd === level));
-  $("shuffleBtn").classList.toggle("on", shuffle);
-  $("autoBtn").classList.toggle("on", auto);
-  $("onBtn").classList.toggle("on", on);
+  const s = /L(\d+)\s+E(\d+)\s+M(\d)\s+B(\d+)/.exec(text);
+  if (!s) {
+    if (/L\d+\s+E\d+\s+A\d/.test(text)) showNote("The lights need the latest Pico update for this page. See Part A of your cheat sheet.");
+    return;
+  }
+  state = { mode: +s[3], level: +s[1], effect: +s[2] };
+  $("stBright").textContent = `${s[4]}%`;
+  render();
 }
 
 // Timer status from the Pico looks like "T1 C1 1600 2300"
@@ -288,13 +318,13 @@ function showTimer(text) {
   $("timerBtn").classList.toggle("on", enabled);
   const note = $("timerNote");
   if (!enabled) {
-    note.textContent = "Timer is off. The lights stay as you set them.";
+    note.textContent = "Timer is off. The lights stay in whatever mode you choose.";
     note.classList.remove("warn");
   } else if (!clockSet) {
     note.textContent = "Timer is on, but the lights don't know the time yet. Reconnect to set it.";
     note.classList.add("warn");
   } else {
-    note.textContent = `Timer is on: lights on at ${on}, off at ${off} each day. Switching on or off by hand lasts until the next change.`;
+    note.textContent = `Timer is on: Off at ${off}, back to your last mode at ${on}. A quiz in progress is left alone.`;
     note.classList.remove("warn");
   }
 }
@@ -305,22 +335,30 @@ function showQuiz(text) {
   const m = /Q(\d)(?:\s+(\d+)\/(\d+)\s+T(\d+)\s+P(\d)\s+R(\d))?/.exec(text);
   if (!m) return;
   const set = +m[1];
-  const newTune = set ? +m[4] : -1;
-  if (newTune !== quiz.tune) $("quizAnswer").hidden = true;   // new tune: hide the old answer
-  quiz = { set, tune: newTune, playing: m[5] === "1", revealed: m[6] === "1" };
-  $("quizStart").hidden = !!set;
-  $("quizRun").hidden = !set;
-  $("quizHint").hidden = !!set;
-  $("normalControls").classList.toggle("paused", !!set);
-  $("powerControls").classList.toggle("paused", !!set);
-  if (!set) return;
-  $("quizName").textContent = set === 1 ? "Carol quiz" : "Nursery rhyme quiz";
-  $("quizCount").textContent = `Tune ${m[2]} of ${m[3]}`;
-  $("quizPlay").textContent = quiz.playing ? "■ Playing… tap to restart" : "▶ Play tune";
+  const tune = set ? +m[4] : -1;
+  if (tune !== quiz.tune) $("quizAnswer").hidden = true;   // new tune: hide the old answer
+  quiz = { set, tune, playing: m[5] === "1" };
+  if (set) {
+    $("quizName").textContent = set === 1 ? "Carol quiz" : "Nursery rhyme quiz";
+    $("quizCount").textContent = `Tune ${m[2]} of ${m[3]}`;
+    $("quizPlay").textContent = quiz.playing ? "■ Playing… tap to restart" : "▶ Play tune";
+  } else {
+    stopPhoneTune();
+  }
+  render();
 }
 
-// The phone plays the tune itself on Reveal (the Pico lights follow along).
+// The phone plays the tune itself on Reveal (the lights follow along).
 let audioCtx = null, voices = [];
+let phoneSound = true;
+try { phoneSound = localStorage.getItem("phoneSound") !== "off"; } catch (e) {}
+function showPhoneSound() {
+  $("phoneSound").classList.toggle("on", phoneSound);
+  $("phoneSoundLabel").textContent = phoneSound ? "Phone plays the tune at Reveal" : "Phone stays silent at Reveal";
+  $("phoneSound").querySelector(".big").textContent = phoneSound ? "🔊" : "🔇";
+}
+showPhoneSound();
+
 function stopPhoneTune() {
   voices.forEach(o => { try { o.stop(); } catch (e) {} });
   voices = [];
@@ -328,7 +366,7 @@ function stopPhoneTune() {
 function playPhoneTune(id) {
   stopPhoneTune();
   const t = QUIZ_TUNES[id];
-  if (!t || !$("phoneSound").checked) return;
+  if (!t || !phoneSound) return;
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === "suspended") audioCtx.resume();
   const ms16 = 60000 / (t.bpm * 4);
@@ -354,12 +392,8 @@ function playPhoneTune(id) {
   });
 }
 
-$("startCarol").addEventListener("click", () => send("C"));
-$("startNursery").addEventListener("click", () => send("N"));
 $("quizPlay").addEventListener("click", () => { stopPhoneTune(); send("p"); });
 $("quizNext").addEventListener("click", () => { stopPhoneTune(); send("x"); });
-$("quizEnd").addEventListener("click", () => { stopPhoneTune(); send("q"); });
-$("sideCheck").addEventListener("click", () => send("f"));
 $("quizReveal").addEventListener("click", () => {
   if (quiz.tune < 0) return;
   const t = QUIZ_TUNES[quiz.tune];
@@ -368,7 +402,14 @@ $("quizReveal").addEventListener("click", () => {
   send("r");
   playPhoneTune(quiz.tune);
 });
+$("phoneSound").addEventListener("click", () => {
+  phoneSound = !phoneSound;
+  try { localStorage.setItem("phoneSound", phoneSound ? "on" : "off"); } catch (e) {}
+  if (!phoneSound) stopPhoneTune();
+  showPhoneSound();
+});
 
+// ---------- sending ----------
 function send(cmd) {
   if (!commandChar) return;
   const data = encoder.encode(cmd);
@@ -380,6 +421,15 @@ function send(cmd) {
   ).catch(err => showNote("Couldn't send that command: " + err.message));
 }
 
+document.querySelectorAll("[data-cmd]").forEach(b => b.addEventListener("click", () => {
+  if (b.classList.contains("mode")) {
+    if (+b.dataset.mode === state.mode) return;   // already in this mode
+    stopPhoneTune();
+  }
+  send(b.dataset.cmd);
+}));
+
+// ---------- connecting ----------
 async function connect() {
   showNote("");
   if (!navigator.bluetooth) {
@@ -398,31 +448,23 @@ async function connect() {
     const service = await server.getPrimaryService(SERVICE_UUID);
     commandChar = await service.getCharacteristic(COMMAND_UUID);
     statusChar = await service.getCharacteristic(STATUS_UUID);
+    timerChar = await service.getCharacteristic(TIMER_UUID);
+
+    setConnected(true);
 
     statusChar.addEventListener("characteristicvaluechanged", e => showStatus(decoder.decode(e.target.value)));
     await statusChar.startNotifications();
-    showStatus(decoder.decode(await statusChar.readValue()));
-
-    try {   // timer was added in step 5; older Pico code won't have it
-      timerChar = await service.getCharacteristic(TIMER_UUID);
-      timerChar.addEventListener("characteristicvaluechanged", e => showTimer(decoder.decode(e.target.value)));
-      await timerChar.startNotifications();
-      showTimer(decoder.decode(await timerChar.readValue()));
-    } catch (e) { timerChar = null; }
-
-    try {   // the music quiz needs the Pico code from November 2026 or later
+    timerChar.addEventListener("characteristicvaluechanged", e => showTimer(decoder.decode(e.target.value)));
+    await timerChar.startNotifications();
+    try {
       quizChar = await service.getCharacteristic(QUIZ_UUID);
       quizChar.addEventListener("characteristicvaluechanged", e => showQuiz(decoder.decode(e.target.value)));
       await quizChar.startNotifications();
       showQuiz(decoder.decode(await quizChar.readValue()));
-      $("quizBox").classList.remove("paused");
-    } catch (e) {
-      quizChar = null;
-      $("quizBox").classList.add("paused");
-      $("quizHint").textContent = "The lights need updating before the quiz will work.";
-    }
+    } catch (e) { quizChar = null; }
+    showTimer(decoder.decode(await timerChar.readValue()));
+    showStatus(decoder.decode(await statusChar.readValue()));
 
-    setConnected(true);
     // Give the lights the current time (seconds since 1970, GMT)
     send("T" + Math.floor(Date.now() / 1000) + ";");
   } catch (err) {
@@ -435,19 +477,13 @@ async function connect() {
 
 function onDisconnected() {
   commandChar = statusChar = timerChar = quizChar = null;
-  stopPhoneTune();
   setConnected(false);
-  showNote(manualDisconnect ? "" : "Lost connection to the lights. Tap Connect to reconnect.");
-  manualDisconnect = false;
+  showNote("Lost connection to the lights. Tap Connect to reconnect.");
 }
 
-$("connect").addEventListener("click", () => {
-  if (device && device.gatt.connected) { manualDisconnect = true; device.gatt.disconnect(); }
-  else connect();
-});
+$("connect").addEventListener("click", connect);
 
-controls().forEach(b => b.addEventListener("click", () => send(b.dataset.cmd)));
-
+// ---------- timer times ----------
 // Turn what was typed into "HHMM", or null if it isn't a real time.
 // Accepts 1630, 16:30, 16.30, 930 (= 09:30) and 9 or 16 (whole hours).
 function parseTime(text) {
@@ -490,7 +526,7 @@ $("saveTimes").addEventListener("click", () => {
   timesEdited = false;
   $("saveTimes").classList.remove("dirty");
 });
-// Level buttons are created above, so attach after building
+
 setConnected(false);
 </script>
 </body>
