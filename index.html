@@ -91,8 +91,8 @@
   .ctl .big { font-size: 1.3rem; line-height: 1; }
   .wide { width: 100%; }
 
-  .quiz-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-  .quiz-head b { font-size: 1.1rem; }
+  .quiz-head { display: flex; flex-direction: column; gap: 2px; }
+  .quiz-head b { font-size: 1.3rem; color: var(--gold); line-height: 1.25; }
   .quiz-head span { color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
   .playbig { min-height: 64px; font-size: 1.15rem; background: linear-gradient(135deg, #2f7d4f, #23633d); color: #fff; }
   .answer { background: var(--bg); border: 2px dashed var(--gold); border-radius: 14px; padding: 14px; text-align: center; }
@@ -169,13 +169,12 @@
   </section>
 
   <section id="panelQuiz" class="panel" hidden>
-    <div class="quiz-head"><b id="quizName">Carol quiz</b><span id="quizCount">Tune 1 of 12</span></div>
+    <div class="quiz-head"><b id="quizName">—</b></div>
     <button class="ctl playbig wide" id="quizPlay" disabled>▶ Play tune</button>
     <div class="grid2">
       <button class="ctl" id="quizReveal" disabled><span class="big">👁</span> Reveal</button>
       <button class="ctl" id="quizNext" disabled><span class="big">⏭</span> Next tune</button>
     </div>
-    <div class="answer" id="quizAnswer" hidden><small>Answer</small><b id="quizTitle"></b></div>
     <button class="ctl toggle on wide" id="phoneSound" disabled><span class="big">🔊</span> <span id="phoneSoundLabel">Phone plays the tune at Reveal</span></button>
   </section>
 
@@ -291,7 +290,7 @@ function render() {
   else if (m === 1) detail = `Level ${state.level} · ${lv ? lv.name : ""} · now showing ${effectName}`;
   else if (m === 2) detail = `Now showing ${effectName} (level ${state.level})`;
   else if (m === 3) detail = "Each side of the fireplace in its own colour";
-  else if (m === 4 || m === 5) detail = $("quizCount").textContent;
+  else if (m === 4 || m === 5) detail = $("quizName").textContent;
   else if (m === 6) detail = "The lights are off";
   $("stDetail").textContent = detail;
 }
@@ -336,11 +335,10 @@ function showQuiz(text) {
   if (!m) return;
   const set = +m[1];
   const tune = set ? +m[4] : -1;
-  if (tune !== quiz.tune) $("quizAnswer").hidden = true;   // new tune: hide the old answer
   quiz = { set, tune, playing: m[5] === "1" };
   if (set) {
-    $("quizName").textContent = set === 1 ? "Carol quiz" : "Nursery rhyme quiz";
-    $("quizCount").textContent = `Tune ${m[2]} of ${m[3]}`;
+    const t = QUIZ_TUNES[tune];
+    $("quizName").textContent = t ? t.title : `Tune ${tune}`;
     $("quizPlay").textContent = quiz.playing ? "■ Playing… tap to restart" : "▶ Play tune";
   } else {
     stopPhoneTune();
@@ -396,9 +394,6 @@ $("quizPlay").addEventListener("click", () => { stopPhoneTune(); send("p"); });
 $("quizNext").addEventListener("click", () => { stopPhoneTune(); send("x"); });
 $("quizReveal").addEventListener("click", () => {
   if (quiz.tune < 0) return;
-  const t = QUIZ_TUNES[quiz.tune];
-  $("quizTitle").textContent = t ? t.title : `Tune ${quiz.tune}`;
-  $("quizAnswer").hidden = false;
   send("r");
   playPhoneTune(quiz.tune);
 });
