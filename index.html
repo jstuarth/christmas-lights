@@ -176,7 +176,7 @@
     <div class="grid2">
       <button class="ctl playbig" id="quizPlay" disabled>▶ Play tune</button>
       <button class="ctl" id="quizNext" disabled><span class="big">⏭</span> Next tune</button>
-      <button class="ctl" id="quizReveal" disabled><span class="big">👁</span> Reveal</button>
+      <button class="ctl toggle" id="quizReveal" disabled><span class="big">👁</span> Reveal</button>
       <button class="ctl toggle on" id="phoneSound" disabled><span class="big">🔊</span> <span id="phoneSoundLabel">Sound on</span></button>
     </div>
   </section>
@@ -324,7 +324,11 @@ function showTimer(text) {
 
 // ---------- music quiz ----------
 // Quiz status from the Pico looks like "Q1 3/12 T5 P1 R0" (P1 = a tune is playing)
-let revealPlaying = false;   // the tune now playing was started by Reveal
+// Reveal and Sound are settings for the next Play:
+//   Reveal off            -> Play shows the tune on the lights only (for guessing)
+//   Reveal on + Sound on  -> Play shows it on the lights and plays it on this phone
+//   Reveal on + Sound off -> lights only
+let revealOn = false;
 let playedOnce = false;      // this tune has been played at least once
 
 function showQuiz(text) {
@@ -332,9 +336,9 @@ function showQuiz(text) {
   if (!m) return;
   const set = +m[1];
   const tune = set ? +m[4] : -1;
-  if (tune !== quiz.tune) playedOnce = false;           // a new tune
+  if (tune !== quiz.tune) { playedOnce = false; revealOn = false; }   // a new tune
   quiz = { set, tune, playing: m[5] === "1" };
-  if (!quiz.playing) { revealPlaying = false; stopPhoneTune(); }
+  if (!quiz.playing) stopPhoneTune();
   if (set) {
     const t = QUIZ_TUNES[tune];
     $("quizName").textContent = t ? t.title : `Tune ${tune}`;
@@ -344,8 +348,7 @@ function showQuiz(text) {
   render();
 }
 
-// While a tune plays, Play shows "Tune playing" and the other buttons wait.
-// Sound can only be switched while Reveal is playing the tune.
+// While a tune plays, Play shows "Playing" and the other buttons wait.
 function updateQuizButtons() {
   if (!commandChar) return;
   const busy = quiz.playing;
@@ -354,7 +357,8 @@ function updateQuizButtons() {
   play.textContent = busy ? "♪ Playing…" : (playedOnce ? "▶ Play again" : "▶ Play tune");
   $("quizNext").disabled = busy;
   $("quizReveal").disabled = busy;
-  $("phoneSound").disabled = !(busy && revealPlaying);
+  $("quizReveal").classList.toggle("on", revealOn);
+  $("phoneSound").disabled = busy || !revealOn;
 }
 
 // The phone plays the tune itself on Reveal (the lights follow along).
@@ -382,8 +386,6 @@ function playPhoneTune(id) {
     master.connect(audioCtx.destination);
   }
   if (audioCtx.state === "suspended") audioCtx.resume();
-  phoneSound = true;                               // each Reveal starts with sound on
-  showPhoneSound();
   const ms16 = 60000 / (t.bpm * 4);
   const t0 = audioCtx.currentTime + 0.12;          // small delay so the lights catch up
   let at = 0;
@@ -408,21 +410,21 @@ function playPhoneTune(id) {
 }
 
 $("quizPlay").addEventListener("click", () => {
-  if (quiz.playing) return;
+  if (quiz.playing || quiz.tune < 0) return;
   stopPhoneTune();
-  revealPlaying = false;
   playedOnce = true;
-  quiz.playing = true; updateQuizButtons();          // show "playing" straight away
-  send("p");
+  quiz.playing = true; updateQuizButtons();          // show "Playing" straight away
+  if (revealOn) {
+    send("r");
+    if (phoneSound) playPhoneTune(quiz.tune);
+  } else {
+    send("p");
+  }
 });
 $("quizNext").addEventListener("click", () => { stopPhoneTune(); send("x"); });
 $("quizReveal").addEventListener("click", () => {
-  if (quiz.tune < 0 || quiz.playing) return;
-  revealPlaying = true;
-  playedOnce = true;
-  quiz.playing = true; updateQuizButtons();
-  send("r");
-  playPhoneTune(quiz.tune);
+  revealOn = !revealOn;
+  updateQuizButtons();
 });
 $("phoneSound").addEventListener("click", () => {
   phoneSound = !phoneSound;
