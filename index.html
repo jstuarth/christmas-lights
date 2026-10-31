@@ -59,7 +59,7 @@
   .status .detail { color: var(--muted); margin-top: 4px; }
 
   /* Mode grid */
-  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .modes { margin-top: 4px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .mode { background: var(--card); border-radius: 14px; padding: 14px 10px; min-height: 64px; font-weight: 600;
           display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center;
           border: 2px solid transparent; transition: transform .1s; }
@@ -91,9 +91,12 @@
   .ctl .big { font-size: 1.3rem; line-height: 1; }
   .wide { width: 100%; }
 
-  .quiz-head { display: flex; flex-direction: column; gap: 2px; }
+  .info { display: flex; flex-direction: column; gap: 2px; }
+  .info small { color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; }
+  .info b { font-size: 1.2rem; color: var(--gold); line-height: 1.25; }
+  .quiz-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
   .quiz-head b { font-size: 1.3rem; color: var(--gold); line-height: 1.25; }
-  .quiz-head span { color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
+  .quiz-head span { color: var(--muted); font-size: .95rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .playbig { min-height: 64px; font-size: 1.15rem; background: linear-gradient(135deg, #2f7d4f, #23633d); color: #fff; }
   .answer { background: var(--bg); border: 2px dashed var(--gold); border-radius: 14px; padding: 14px; text-align: center; }
   .answer small { display: block; color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; }
@@ -130,12 +133,6 @@
   <button id="connect" class="connect">Connect to lights</button>
   <div id="note" class="note" hidden></div>
 
-  <section class="status" aria-live="polite">
-    <div class="now" id="stNow">—</div>
-    <div class="detail" id="stDetail">Tap Connect to begin</div>
-  </section>
-
-  <h2>Mode</h2>
   <div class="modes" id="modes">
     <button class="mode" data-mode="0" data-cmd="e" disabled><span class="big">✨</span> One effect</button>
     <button class="mode" data-mode="1" data-cmd="a" disabled><span class="big">🔁</span> Auto</button>
@@ -148,12 +145,14 @@
 
   <!-- Controls for the chosen mode (only one shows at a time) -->
   <section id="panelEffects" class="panel" hidden>
+    <div class="info" aria-live="polite"><small>Now showing</small><b id="nowEffect">—</b></div>
     <h3>Energy level</h3>
     <div class="levels" id="levels"></div>
     <button class="ctl wide" data-cmd="n" disabled><span class="big">⏭</span> Next effect</button>
   </section>
 
   <section id="panelShuffle" class="panel" hidden>
+    <div class="info" aria-live="polite"><small>Now showing</small><b id="nowShuffle">—</b></div>
     <p>All 13 effects in a random order, changing every minute.</p>
     <button class="ctl wide" data-cmd="n" disabled><span class="big">⏭</span> Skip to the next effect</button>
   </section>
@@ -169,7 +168,7 @@
   </section>
 
   <section id="panelQuiz" class="panel" hidden>
-    <div class="quiz-head"><b id="quizName">—</b></div>
+    <div class="quiz-head" aria-live="polite"><b id="quizName">—</b><span id="quizCount"></span></div>
     <button class="ctl playbig wide" id="quizPlay" disabled>▶ Play tune</button>
     <div class="grid2">
       <button class="ctl" id="quizReveal" disabled><span class="big">👁</span> Reveal</button>
@@ -259,8 +258,6 @@ function setConnected(on) {
   $("pill").className = "pill" + (on ? " on" : "");
   if (!on) {
     state.mode = -1;
-    $("stNow").textContent = "—";
-    $("stDetail").textContent = "Tap Connect to begin";
     document.querySelectorAll(".mode").forEach(b => b.classList.remove("active"));
     document.querySelectorAll(".panel").forEach(p => p.hidden = true);
     $("timerNote").textContent = "Connect to see the timer.";
@@ -284,15 +281,8 @@ function render() {
 
   const lv = LEVELS[state.level - 1];
   const effectName = lv && lv.effects[state.effect - 1] ? lv.effects[state.effect - 1] : `Effect ${state.effect}`;
-  $("stNow").textContent = MODES[m] || "—";
-  let detail = "";
-  if (m === 0) detail = `Level ${state.level} · ${lv ? lv.name : ""} · ${effectName}`;
-  else if (m === 1) detail = `Level ${state.level} · ${lv ? lv.name : ""} · now showing ${effectName}`;
-  else if (m === 2) detail = `Now showing ${effectName} (level ${state.level})`;
-  else if (m === 3) detail = "Each side of the fireplace in its own colour";
-  else if (m === 4 || m === 5) detail = $("quizName").textContent;
-  else if (m === 6) detail = "The lights are off";
-  $("stDetail").textContent = detail;
+  $("nowEffect").textContent = effectName;
+  $("nowShuffle").textContent = `${effectName} (level ${state.level} · ${lv ? lv.name : ""})`;
 }
 
 // Status from the Pico looks like "L3 E2 M1 B100"
@@ -339,6 +329,7 @@ function showQuiz(text) {
   if (set) {
     const t = QUIZ_TUNES[tune];
     $("quizName").textContent = t ? t.title : `Tune ${tune}`;
+    $("quizCount").textContent = `${m[2]} of ${m[3]}`;
     $("quizPlay").textContent = quiz.playing ? "■ Playing… tap to restart" : "▶ Play tune";
   } else {
     stopPhoneTune();
