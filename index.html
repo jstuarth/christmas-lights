@@ -169,12 +169,12 @@
 
   <section id="panelQuiz" class="panel" hidden>
     <div class="quiz-head" aria-live="polite"><b id="quizName">—</b><span id="quizCount"></span></div>
-    <button class="ctl playbig wide" id="quizPlay" disabled>▶ Play tune</button>
     <div class="grid2">
-      <button class="ctl" id="quizReveal" disabled><span class="big">👁</span> Reveal</button>
+      <button class="ctl playbig" id="quizPlay" disabled>▶ Play tune</button>
       <button class="ctl" id="quizNext" disabled><span class="big">⏭</span> Next tune</button>
+      <button class="ctl" id="quizReveal" disabled><span class="big">👁</span> Reveal</button>
+      <button class="ctl toggle on" id="phoneSound" disabled><span class="big">🔊</span> <span id="phoneSoundLabel">Sound on</span></button>
     </div>
-    <button class="ctl toggle on wide" id="phoneSound" disabled><span class="big">🔊</span> <span id="phoneSoundLabel">Phone plays the tune at Reveal</span></button>
   </section>
 
   <section id="panelOff" class="panel" hidden>
@@ -330,7 +330,7 @@ function showQuiz(text) {
     const t = QUIZ_TUNES[tune];
     $("quizName").textContent = t ? t.title : `Tune ${tune}`;
     $("quizCount").textContent = `${m[2]} of ${m[3]}`;
-    $("quizPlay").textContent = quiz.playing ? "■ Playing… tap to restart" : "▶ Play tune";
+    $("quizPlay").textContent = quiz.playing ? "↻ Restart" : "▶ Play tune";
   } else {
     stopPhoneTune();
   }
@@ -343,7 +343,7 @@ let phoneSound = true;
 try { phoneSound = localStorage.getItem("phoneSound") !== "off"; } catch (e) {}
 function showPhoneSound() {
   $("phoneSound").classList.toggle("on", phoneSound);
-  $("phoneSoundLabel").textContent = phoneSound ? "Phone plays the tune at Reveal" : "Phone stays silent at Reveal";
+  $("phoneSoundLabel").textContent = phoneSound ? "Sound on" : "Sound off";
   $("phoneSound").querySelector(".big").textContent = phoneSound ? "🔊" : "🔇";
 }
 showPhoneSound();
